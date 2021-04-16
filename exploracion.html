@@ -671,6 +671,7 @@ dtype: object</pre
           <div class="inner_cell">
             <div class="text_cell_render border-box-sizing rendered_html">
               <h2>Inicio de exploración</h2>
+              <p>Gracias al preprocesamiento realizado en la sección anterior, contamos con el siguiente dataframe con sus respectivo atributos.</p>
             </div>
           </div>
         </div>
@@ -912,7 +913,7 @@ dtype: object</pre
         </div>
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[17]:</div>
+            <div class="prompt input_prompt">In&nbsp;[9]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
@@ -927,7 +928,7 @@ dtype: object</pre
           <div class="output_wrapper">
             <div class="output">
               <div class="output_area">
-                <div class="prompt output_prompt">Out[17]:</div>
+                <div class="prompt output_prompt">Out[9]:</div>
 
                 <div class="output_text output_subarea output_execute_result">
                   <pre>
@@ -949,14 +950,24 @@ dtype: object</pre
             </div>
           </div>
         </div>
+
+        <!-- Dimensionalidad -->
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h3>Dimensionalidad</h3>
+            </div>
+          </div>
+        </div>
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[18]:</div>
+            <div class="prompt input_prompt">In&nbsp;[10]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
                   <pre><span></span><span class="c1"># Se calcula el total de las filas del dataset</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Las filas totales son :&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;El largo total de las filas en el dataframe es:&#39;</span><span class="p">)</span>
 <span class="nb">print</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </pre>
                 </div>
@@ -967,53 +978,48 @@ dtype: object</pre
           <div class="output_wrapper">
             <div class="output">
               <div class="output_area">
-                <div class="prompt"></div>
+                <div class="prompt output_prompt">Out[10]:</div>
 
-                <div
-                  class="output_subarea output_stream output_stdout output_text"
-                >
+                <div class="output_text output_subarea output_execute_result">
                   <pre>
-Las filas totales son :
+El largo total de las filas en el dataframe es:
 12067791
-</pre
-                  >
+                  </pre>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        <!-- Segun largo de los tweets -->
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h3>Estadísticas generales según largo de tweets</h3>
+            </div>
+          </div>
+        </div>
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[19]:</div>
+            <div class="prompt input_prompt">In&nbsp;[11]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
-                  <pre><span></span><span class="c1"># Se obtienen los estadísticos del dataset según el largo del tweet</span>
-
+                  <pre><span></span><span class="c1"># Se obtienen las estadísticas del dataset según el largo del tweet</span>
 <span class="n">detalles</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;largo_tweet&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
 </pre>
+<pre><span></span><span class="n">detalles</span>
+</pre>
                 </div>
               </div>
             </div>
           </div>
         </div>
         <div class="cell border-box-sizing code_cell rendered">
-          <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[20]:</div>
-            <div class="inner_cell">
-              <div class="input_area">
-                <div class="highlight hl-ipython3">
-                  <pre><span></span><span class="n">detalles</span>
-</pre>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div class="output_wrapper">
             <div class="output">
               <div class="output_area">
-                <div class="prompt output_prompt">Out[20]:</div>
+                <div class="prompt output_prompt">Out[11]:</div>
 
                 <div class="output_text output_subarea output_execute_result">
                   <pre>
@@ -1032,22 +1038,21 @@ Name: largo_tweet, dtype: float64</pre
             </div>
           </div>
         </div>
-        <div class="cell border-box-sizing code_cell rendered">
-          <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[21]:</div>
-            <div class="inner_cell">
-              <div class="input_area">
-                <div class="highlight hl-ipython3">
-                  <pre><span></span><span class="c1"># Desde aqui empieza la exploración de datos por año</span>
-</pre>
-                </div>
-              </div>
+
+        <!-- Según año -->
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h4>Exploración de datos por año según largo</h4>
+              <p>A continuación se describe una exploración dividiendo los tweets según su año de publicación.
+                Se presenta el código realizado para el año 2013, donde se realizó de forma análoga para el resto de los años.</p>
             </div>
           </div>
         </div>
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[22]:</div>
+            <div class="prompt input_prompt">In&nbsp;[12]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
@@ -1077,7 +1082,7 @@ Los datos de los largos del año 2013 son:
               </div>
 
               <div class="output_area">
-                <div class="prompt output_prompt">Out[22]:</div>
+                <div class="prompt output_prompt">Out[12]:</div>
 
                 <div class="output_text output_subarea output_execute_result">
                   <pre>
@@ -1096,221 +1101,27 @@ Name: largo_tweet, dtype: float64</pre
             </div>
           </div>
         </div>
-        <div class="cell border-box-sizing code_cell rendered">
-          <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[23]:</div>
-            <div class="inner_cell">
-              <div class="input_area">
-                <div class="highlight hl-ipython3">
-                  <pre><span></span><span class="c1"># Se obtienen los estadísticos de los tweets publicados el 2014, según el largo</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Los datos de los largos del año 2014 son:&#39;</span><span class="p">)</span>
-<span class="n">data</span><span class="p">[</span><span class="s1">&#39;largo_tweet&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">year</span> <span class="o">==</span> <span class="mi">2014</span><span class="p">]</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
-</pre>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="output_wrapper">
-            <div class="output">
-              <div class="output_area">
-                <div class="prompt"></div>
-
-                <div
-                  class="output_subarea output_stream output_stdout output_text"
-                >
-                  <pre>
-Los datos de los largos del año 2014 son:
-</pre
-                  >
-                </div>
-              </div>
-
-              <div class="output_area">
-                <div class="prompt output_prompt">Out[23]:</div>
-
-                <div class="output_text output_subarea output_execute_result">
-                  <pre>
-count    4.557789e+06
-mean     7.755070e+01
-std      3.609980e+01
-min      4.000000e+00
-25%      4.800000e+01
-50%      7.400000e+01
-75%      1.080000e+02
-max      2.530000e+02
-Name: largo_tweet, dtype: float64</pre
-                  >
-                </div>
-              </div>
+        <!-- Grafico de caja 1 -->
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <p>
+                Se realizó un gráfico de cajas y bigotes sobre el atributo de largo de los tweets para cada año
+              </p>
             </div>
           </div>
         </div>
+
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[24]:</div>
+            <div class="prompt input_prompt">In&nbsp;[13]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
-                  <pre><span></span><span class="c1"># Se obtienen los estadísticos de los tweets publicados el 2015, según el largo</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Los datos de los largos del año 2015 son:&#39;</span><span class="p">)</span>
-<span class="n">data</span><span class="p">[</span><span class="s1">&#39;largo_tweet&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">year</span> <span class="o">==</span> <span class="mi">2015</span><span class="p">]</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
-</pre>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="output_wrapper">
-            <div class="output">
-              <div class="output_area">
-                <div class="prompt"></div>
-
-                <div
-                  class="output_subarea output_stream output_stdout output_text"
-                >
-                  <pre>
-Los datos de los largos del año 2015 son:
-</pre
-                  >
-                </div>
-              </div>
-
-              <div class="output_area">
-                <div class="prompt output_prompt">Out[24]:</div>
-
-                <div class="output_text output_subarea output_execute_result">
-                  <pre>
-count    2.437988e+06
-mean     8.555109e+01
-std      3.446036e+01
-min      4.000000e+00
-25%      5.900000e+01
-50%      8.700000e+01
-75%      1.170000e+02
-max      3.250000e+02
-Name: largo_tweet, dtype: float64</pre
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="cell border-box-sizing code_cell rendered">
-          <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[25]:</div>
-            <div class="inner_cell">
-              <div class="input_area">
-                <div class="highlight hl-ipython3">
-                  <pre><span></span><span class="c1"># Se obtienen los estadísticos de los tweets publicados el 2016, según el largo</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Los datos de los largos año 2016 son:&#39;</span><span class="p">)</span>
-<span class="n">data</span><span class="p">[</span><span class="s1">&#39;largo_tweet&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">year</span> <span class="o">==</span> <span class="mi">2016</span><span class="p">]</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
-</pre>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="output_wrapper">
-            <div class="output">
-              <div class="output_area">
-                <div class="prompt"></div>
-
-                <div
-                  class="output_subarea output_stream output_stdout output_text"
-                >
-                  <pre>
-Los datos de los largos año 2016 son:
-</pre
-                  >
-                </div>
-              </div>
-
-              <div class="output_area">
-                <div class="prompt output_prompt">Out[25]:</div>
-
-                <div class="output_text output_subarea output_execute_result">
-                  <pre>
-count    891188.000000
-mean         93.319676
-std          25.374021
-min           4.000000
-25%          77.000000
-50%          93.000000
-75%         116.000000
-max         182.000000
-Name: largo_tweet, dtype: float64</pre
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="cell border-box-sizing code_cell rendered">
-          <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[26]:</div>
-            <div class="inner_cell">
-              <div class="input_area">
-                <div class="highlight hl-ipython3">
-                  <pre><span></span><span class="c1"># Se obtienen los estadísticos de los tweets publicados el 2017, según el largo</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Los datos de los largos año 2017 son:&#39;</span><span class="p">)</span>
-<span class="n">data</span><span class="p">[</span><span class="s1">&#39;largo_tweet&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">year</span> <span class="o">==</span> <span class="mi">2017</span><span class="p">]</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
-</pre>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="output_wrapper">
-            <div class="output">
-              <div class="output_area">
-                <div class="prompt"></div>
-
-                <div
-                  class="output_subarea output_stream output_stdout output_text"
-                >
-                  <pre>
-Los datos de los largos año 2017 son:
-</pre
-                  >
-                </div>
-              </div>
-
-              <div class="output_area">
-                <div class="prompt output_prompt">Out[26]:</div>
-
-                <div class="output_text output_subarea output_execute_result">
-                  <pre>
-count    238637.000000
-mean         96.859728
-std          23.284519
-min           4.000000
-25%          83.000000
-50%          99.000000
-75%         116.000000
-max         148.000000
-Name: largo_tweet, dtype: float64</pre
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="cell border-box-sizing code_cell rendered">
-          <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[27]:</div>
-            <div class="inner_cell">
-              <div class="input_area">
-                <div class="highlight hl-ipython3">
-                  <pre><span></span><span class="c1"># Se hace un grafico de cajas y bigotes sobre el atributo de largo de los tweets para cada año</span>
-
-<span class="n">boxplot</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;largo_tweet&#39;</span><span class="p">],</span> <span class="n">by</span><span class="o">=</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+                  <pre><span></span><span class="n">boxplot</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;largo_tweet&#39;</span><span class="p">],</span> <span class="n">by</span><span class="o">=</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
 <span class="n">boxplot</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
-
 
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre>
@@ -3219,14 +3030,27 @@ z
             </div>
           </div>
         </div>
+
+        <!-- Según fecha -->
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h3>Exploración de datos según su fecha de publicación</h3>
+              <p>A continuación se describe una exploración del dataframe en relación a la fehca de publicación de cada tweet.
+                Se determinó la frecuencia horaria de los tweets.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[28]:</div>
+            <div class="prompt input_prompt">In&nbsp;[14]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
                   <pre><span></span><span class="c1"># Se calcula la frecuencia horaria de los tweets</span>
-
 <span class="n">tweets_hora</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;hour&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
 <span class="n">tweets_hora</span>
 </pre>
@@ -3238,7 +3062,7 @@ z
           <div class="output_wrapper">
             <div class="output">
               <div class="output_area">
-                <div class="prompt output_prompt">Out[28]:</div>
+                <div class="prompt output_prompt">Out[14]:</div>
 
                 <div
                   class="output_html rendered_html output_subarea output_execute_result"
@@ -3607,9 +3431,23 @@ z
             </div>
           </div>
         </div>
+
+        <!-- Grafico de zonas horarias -->
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <p>
+                Se puede apreciar en el siguiente gráfico que alrededor de las 2am. se publican más tweets,
+                mientras que alrededor de las 8am. se presenta la menor actividad.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[30]:</div>
+            <div class="prompt input_prompt">In&nbsp;[15]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
@@ -3626,14 +3464,7 @@ z
           <div class="output_wrapper">
             <div class="output">
               <div class="output_area">
-                <div class="prompt output_prompt">Out[30]:</div>
-
-                <div class="output_text output_subarea output_execute_result">
-                  <pre>[&lt;matplotlib.lines.Line2D at 0x7f1aba85db20&gt;]</pre>
-                </div>
-              </div>
-
-              <div class="output_area">
+                <div class="prompt output_prompt">Out[15]:</div>
                 <div class="prompt"></div>
 
                 <div class="output_svg output_subarea">
@@ -4836,9 +4667,21 @@ L 387.175 10.055231
             </div>
           </div>
         </div>
+
+        <!-- Según ubicacion geografica -->
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h3>Exploración de datos según su ubicación geografica en Chile </h3>
+              <p>A continuación se describe una exploración del dataframe en relación su ubicación geografica.
+              </p>
+            </div>
+          </div>
+        </div>
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[31]:</div>
+            <div class="prompt input_prompt">In&nbsp;[16]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
@@ -6364,7 +6207,7 @@ z
         </div>
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[32]:</div>
+            <div class="prompt input_prompt">In&nbsp;[17]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
@@ -7906,7 +7749,7 @@ z
         </div>
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[33]:</div>
+            <div class="prompt input_prompt">In&nbsp;[18]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
@@ -7922,7 +7765,7 @@ z
           <div class="output_wrapper">
             <div class="output">
               <div class="output_area">
-                <div class="prompt output_prompt">Out[33]:</div>
+                <div class="prompt output_prompt">Out[18]:</div>
 
                 <div class="output_text output_subarea output_execute_result">
                   <pre>
@@ -7943,7 +7786,7 @@ Name: longitude, dtype: float64</pre
         </div>
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[34]:</div>
+            <div class="prompt input_prompt">In&nbsp;[19]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
@@ -7959,7 +7802,7 @@ Name: longitude, dtype: float64</pre
           <div class="output_wrapper">
             <div class="output">
               <div class="output_area">
-                <div class="prompt output_prompt">Out[34]:</div>
+                <div class="prompt output_prompt">Out[19]:</div>
 
                 <div class="output_text output_subarea output_execute_result">
                   <pre>
@@ -7980,7 +7823,7 @@ Name: latitud, dtype: float64</pre
         </div>
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[35]:</div>
+            <div class="prompt input_prompt">In&nbsp;[20]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
@@ -7998,7 +7841,7 @@ Name: latitud, dtype: float64</pre
           <div class="output_wrapper">
             <div class="output">
               <div class="output_area">
-                <div class="prompt output_prompt">Out[35]:</div>
+                <div class="prompt output_prompt">Out[20]:</div>
 
                 <div
                   class="output_html rendered_html output_subarea output_execute_result"
@@ -8055,7 +7898,7 @@ Name: latitud, dtype: float64</pre
         </div>
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[36]:</div>
+            <div class="prompt input_prompt">In&nbsp;[21]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
@@ -8073,7 +7916,7 @@ Name: latitud, dtype: float64</pre
           <div class="output_wrapper">
             <div class="output">
               <div class="output_area">
-                <div class="prompt output_prompt">Out[36]:</div>
+                <div class="prompt output_prompt">Out[21]:</div>
 
                 <div
                   class="output_html rendered_html output_subarea output_execute_result"
