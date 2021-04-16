@@ -272,11 +272,14 @@
           <div class="prompt input_prompt"></div>
           <div class="inner_cell">
             <div class="text_cell_render border-box-sizing rendered_html">
-              <h2 id="Titulo">Exploración inicial</h2>
+              <h2 id="Titulo">Carga de datos</h2>
+
+              <p>Dado que los datos se encontraban en diferentes archivos .csv, se cargaron todos juntos en un mismo dataframe con el siguiente código:</p>
             </div>
           </div>
         </div>
-        <!-- Años de la base de datos -->
+
+        <!-- Carga de datos -->
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
             <div class="prompt input_prompt">In&nbsp;[2]:</div>
@@ -286,34 +289,9 @@
                   <pre><span></span><span class="c1"># Años de la base de datos</span>
 <span class="n">años</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;2013&#39;</span><span class="p">,</span> <span class="s1">&#39;2014&#39;</span><span class="p">,</span> <span class="s1">&#39;2015&#39;</span><span class="p">,</span> <span class="s1">&#39;2016&#39;</span><span class="p">,</span> <span class="s1">&#39;2017&#39;</span><span class="p">]</span>
 </pre>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Path de los datos -->
-        <div class="cell border-box-sizing code_cell rendered">
-          <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[3]:</div>
-            <div class="inner_cell">
-              <div class="input_area">
-                <div class="highlight hl-ipython3">
                   <pre><span></span><span class="c1"># Path a los datos</span>
-
 <span class="n">path_base</span> <span class="o">=</span> <span class="s1">&#39;Datos&#39;</span>
 </pre>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="cell border-box-sizing code_cell rendered">
-          <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[5]:</div>
-            <div class="inner_cell">
-              <div class="input_area">
-                <div class="highlight hl-ipython3">
                   <pre><span></span><span class="c1"># Se añade todos los datos a dataframe</span>
 
 <span class="n">largo_tablas</span> <span class="o">=</span> <span class="p">{}</span>
@@ -336,118 +314,24 @@
             </div>
           </div>
 
-          <div class="output_wrapper">
-            <div class="output">
-              <div class="output_area">
-                <div class="prompt"></div>
-
-                <div
-                  class="output_subarea output_stream output_stdout output_text"
-                >
-                  <pre>
-Año: 2013
-Año: 2014
-Año: 2015
-Año: 2016
-Año: 2017
-</pre
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="cell border-box-sizing code_cell rendered">
-          <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[6]:</div>
+          <!-- Mostrar como quedaron los datos -->
+          <div class="cell border-box-sizing text_cell rendered">
+            <div class="prompt input_prompt"></div>
             <div class="inner_cell">
-              <div class="input_area">
-                <div class="highlight hl-ipython3">
-                  <pre><span></span><span class="n">largo_tablas</span>
-</pre>
-                </div>
+              <div class="text_cell_render border-box-sizing rendered_html">
+                <p>
+                  Obteniendo el siguiente resultado:
+                </p>
               </div>
             </div>
           </div>
-
-          <div class="output_wrapper">
-            <div class="output">
-              <div class="output_area">
-                <div class="prompt output_prompt">Out[6]:</div>
-
-                <div class="output_text output_subarea output_execute_result">
-                  <pre>
-{&#39;p20137.csv&#39;: 336995,
- &#39;p201310.csv&#39;: 333782,
- &#39;p20138.csv&#39;: 327387,
- &#39;p20131.csv&#39;: 310339,
- &#39;p20139.csv&#39;: 303685,
- &#39;p201311.csv&#39;: 328368,
- &#39;p201312.csv&#39;: 410035,
- &#39;p20136.csv&#39;: 331547,
- &#39;p20133.csv&#39;: 271046,
- &#39;p20132.csv&#39;: 319140,
- &#39;p20134.csv&#39;: 333912,
- &#39;p20135.csv&#39;: 335953,
- &#39;p20143.csv&#39;: 395812,
- &#39;p20146.csv&#39;: 433487,
- &#39;p201412.csv&#39;: 301191,
- &#39;p20141.csv&#39;: 404063,
- &#39;p20147.csv&#39;: 420424,
- &#39;p20148.csv&#39;: 408776,
- &#39;p201411.csv&#39;: 345611,
- &#39;p20142.csv&#39;: 383179,
- &#39;p20149.csv&#39;: 377840,
- &#39;p20144.csv&#39;: 381389,
- &#39;p20145.csv&#39;: 346104,
- &#39;p201410.csv&#39;: 359913,
- &#39;p20151.csv&#39;: 306827,
- &#39;p201512.csv&#39;: 119087,
- &#39;p20152.csv&#39;: 366329,
- &#39;p201510.csv&#39;: 144513,
- &#39;p201511.csv&#39;: 138505,
- &#39;p20159.csv&#39;: 130869,
- &#39;p20153.csv&#39;: 392551,
- &#39;p20158.csv&#39;: 123689,
- &#39;p20154.csv&#39;: 346710,
- &#39;p20156.csv&#39;: 115772,
- &#39;p20155.csv&#39;: 133392,
- &#39;p20157.csv&#39;: 119744,
- &#39;p20167.csv&#39;: 73311,
- &#39;p20165.csv&#39;: 71485,
- &#39;p201611.csv&#39;: 28002,
- &#39;p20168.csv&#39;: 59914,
- &#39;p20169.csv&#39;: 59306,
- &#39;p20161.csv&#39;: 137665,
- &#39;p201612.csv&#39;: 27523,
- &#39;p20164.csv&#39;: 79554,
- &#39;p20162.csv&#39;: 144742,
- &#39;p20166.csv&#39;: 75236,
- &#39;p20163.csv&#39;: 92470,
- &#39;p201610.csv&#39;: 41980,
- &#39;p20171.csv&#39;: 28441,
- &#39;p20175.csv&#39;: 24763,
- &#39;p20172.csv&#39;: 26029,
- &#39;p20178.csv&#39;: 35713,
- &#39;p20177.csv&#39;: 29876,
- &#39;p20173.csv&#39;: 25087,
- &#39;p20179.csv&#39;: 19273,
- &#39;p20174.csv&#39;: 24720,
- &#39;p20176.csv&#39;: 24735}</pre
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[7]:</div>
+            <div class="prompt input_prompt">In&nbsp;[3]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
                   <pre><span></span><span class="c1"># Se despliegan los datos concatenados en un solo dataframe</span>
-
 <span class="n">data</span>
 </pre>
                 </div>
@@ -458,7 +342,7 @@ Año: 2017
           <div class="output_wrapper">
             <div class="output">
               <div class="output_area">
-                <div class="prompt output_prompt">Out[7]:</div>
+                <div class="prompt output_prompt">Out[3]:</div>
 
                 <div
                   class="output_html rendered_html output_subarea output_execute_result"
@@ -628,9 +512,22 @@ Año: 2017
             </div>
           </div>
         </div>
+
+        <!-- ¡¡Fechas como object!! -->
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <p>
+                Podemos notar con el siguiente comando que las fechas del dataframe son interpretadas como 'object' dificultando una posible exploración posterior.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[8]:</div>
+            <div class="prompt input_prompt">In&nbsp;[4]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
@@ -645,7 +542,7 @@ Año: 2017
           <div class="output_wrapper">
             <div class="output">
               <div class="output_area">
-                <div class="prompt output_prompt">Out[8]:</div>
+                <div class="prompt output_prompt">Out[4]:</div>
 
                 <div class="output_text output_subarea output_execute_result">
                   <pre>
@@ -663,9 +560,23 @@ dtype: object</pre
             </div>
           </div>
         </div>
+
+        <!-- Corrección fechas -->
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h2>Preprocesamiento de datos</h2>
+              <h3>Corrección fechas</h3>
+              <p>Para dar solución al problema mencionado en el apartado anterior, se descompuso el atributo 'created_at' por los atributos 'year', 'hour' y 'weekday'.</p>
+            </div>
+          </div>
+        </div>
+
+
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[9]:</div>
+            <div class="prompt input_prompt">In&nbsp;[5]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
@@ -675,21 +586,10 @@ dtype: object</pre
 
 <span class="n">fechas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;created_at&#39;</span><span class="p">])</span>
 <span class="n">fechas_transformadas</span> <span class="o">=</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fechas</span><span class="p">]</span>
-</pre>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="cell border-box-sizing code_cell rendered">
-          <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[10]:</div>
-            <div class="inner_cell">
-              <div class="input_area">
-                <div class="highlight hl-ipython3">
-                  <pre><span></span><span class="c1"># Se aplica un mapeo al arreglo obtenido de la columna &#39;created_at&#39; en la celda anterior para obtener 3 arreglos:</span>
-<span class="c1"># los años, las horas y los dias de la semana correspondientes a cada fecha del arreglo.</span>
 
+</pre>
+<pre><span></span><span class="c1"># Se aplica un mapeo al arreglo obtenido de la columna &#39;created_at&#39; en la celda anterior para obtener 3 arreglos:</span>
+<span class="c1"># los años, las horas y los dias de la semana correspondientes a cada fecha del arreglo.</span>
 <span class="n">años</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">year</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fechas_transformadas</span><span class="p">]</span>
 <span class="n">hora</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">hour</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fechas_transformadas</span><span class="p">]</span>
 <span class="n">dia_semana</span> <span class="o">=</span> <span class="p">[</span><span class="n">calendar</span><span class="o">.</span><span class="n">day_name</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">weekday</span><span class="p">()]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fechas_transformadas</span><span class="p">]</span>
@@ -699,48 +599,26 @@ dtype: object</pre
             </div>
           </div>
         </div>
+
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[11]:</div>
+            <div class="prompt input_prompt">In&nbsp;[6]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
                   <pre><span></span><span class="c1"># Se borran del ambiente ya que no se van a necesitar de nuevo</span>
-
 <span class="k">del</span><span class="p">(</span><span class="n">fechas_transformadas</span><span class="p">)</span>
 <span class="k">del</span><span class="p">(</span><span class="n">fechas</span><span class="p">)</span>
-</pre>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="cell border-box-sizing code_cell rendered">
-          <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[12]:</div>
-            <div class="inner_cell">
-              <div class="input_area">
-                <div class="highlight hl-ipython3">
-                  <pre><span></span><span class="c1"># Se crean nuevos atributos en el dataset inicial para incluir como columnas a los arreglos obtenidos de la columna </span>
-<span class="c1"># &#39;created_at&#39;</span>
 
+</pre>
+<pre><span></span><span class="c1"># Se crean nuevos atributos en el dataset inicial para incluir como columnas a los arreglos obtenidos de la columna </span>
+<span class="c1"># &#39;created_at&#39;</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">year</span> <span class="o">=</span> <span class="n">años</span><span class="p">)</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">hour</span> <span class="o">=</span> <span class="n">hora</span><span class="p">)</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">weekday</span> <span class="o">=</span> <span class="n">dia_semana</span><span class="p">)</span>
-</pre>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="cell border-box-sizing code_cell rendered">
-          <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[13]:</div>
-            <div class="inner_cell">
-              <div class="input_area">
-                <div class="highlight hl-ipython3">
-                  <pre><span></span><span class="c1"># Se borran del ambiente ya que no se van a necesitar de nuevo</span>
 
+</pre>
+<pre><span></span><span class="c1"># Se borran del ambiente ya que no se van a necesitar de nuevo</span>
 <span class="k">del</span><span class="p">(</span><span class="n">años</span><span class="p">)</span>
 <span class="k">del</span><span class="p">(</span><span class="n">hora</span><span class="p">)</span>
 <span class="k">del</span><span class="p">(</span><span class="n">dia_semana</span><span class="p">)</span>
@@ -750,45 +628,34 @@ dtype: object</pre
             </div>
           </div>
         </div>
+
+        <!-- Largo de los tweets -->
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h3>Largo de los tweets</h3>
+              <p>Un dato que puede aportar a una exploración futura es el largo de cada tweet, el cual se obtuvo de la siguiente forma.</p>
+            </div>
+          </div>
+        </div>
+
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[14]:</div>
+            <div class="prompt input_prompt">In&nbsp;[7]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
                   <pre><span></span><span class="c1"># Se aplica un mapeo sobre la columna &#39;tweet&#39; para obtener el largo de cada tweet</span>
-
 <span class="n">tweets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;tweet&#39;</span><span class="p">])</span>
 <span class="n">largo_mensajes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tw</span><span class="p">))</span> <span class="k">for</span> <span class="n">tw</span> <span class="ow">in</span> <span class="n">tweets</span><span class="p">]</span>
-</pre>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="cell border-box-sizing code_cell rendered">
-          <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[15]:</div>
-            <div class="inner_cell">
-              <div class="input_area">
-                <div class="highlight hl-ipython3">
-                  <pre><span></span><span class="c1"># Se añade el largo de cada tweet como un atributo del dataset</span>
 
+</pre>
+<pre><span></span><span class="c1"># Se añade el largo de cada tweet como un atributo del dataset</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">largo_tweet</span> <span class="o">=</span> <span class="n">largo_mensajes</span><span class="p">)</span>
-</pre>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="cell border-box-sizing code_cell rendered">
-          <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[16]:</div>
-            <div class="inner_cell">
-              <div class="input_area">
-                <div class="highlight hl-ipython3">
-                  <pre><span></span><span class="c1"># Se borran del ambiente ya que no se van a necesitar de nuevo</span>
 
+</pre>
+<pre><span></span><span class="c1"># Se borran del ambiente ya que no se van a necesitar de nuevo</span>
 <span class="k">del</span><span class="p">(</span><span class="n">largo_mensajes</span><span class="p">)</span>
 <span class="k">del</span><span class="p">(</span><span class="n">tweets</span><span class="p">)</span>
 </pre>
@@ -797,14 +664,24 @@ dtype: object</pre
             </div>
           </div>
         </div>
+
+        <!-- INICIO DE EXPLORACION -->
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h2>Inicio de exploración</h2>
+            </div>
+          </div>
+        </div>
+
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
-            <div class="prompt input_prompt">In&nbsp;[16]:</div>
+            <div class="prompt input_prompt">In&nbsp;[8]:</div>
             <div class="inner_cell">
               <div class="input_area">
                 <div class="highlight hl-ipython3">
                   <pre><span></span><span class="c1"># Se despliega el dataset con los nuevos atributos añadidos</span>
-
 <span class="n">data</span>
 </pre>
                 </div>
@@ -815,7 +692,7 @@ dtype: object</pre
           <div class="output_wrapper">
             <div class="output">
               <div class="output_area">
-                <div class="prompt output_prompt">Out[16]:</div>
+                <div class="prompt output_prompt">Out[8]:</div>
 
                 <div
                   class="output_html rendered_html output_subarea output_execute_result"
