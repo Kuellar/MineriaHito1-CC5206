@@ -13610,15 +13610,15 @@ div#notebook {
   color: white;
 }
 
+/* justify */
+p {
+  text-align: justify;
+  text-justify: inter-word !important;
+}
+
 /* footer */
 footer {
   text-align: center;
   padding: 15px 0 10px 0;
   color: grey;
-}
-
-/* justify */
-p {
-  text-align: justify !important;
-  text-justify: inter-word !important;
 }
