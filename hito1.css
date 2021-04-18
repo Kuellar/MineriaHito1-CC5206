@@ -13609,3 +13609,10 @@ div#notebook {
   background-color: #414141;
   color: white;
 }
+
+/* footer */
+footer {
+  text-align: center;
+  padding: 15px 0 10px 0;
+  color: grey;
+}
