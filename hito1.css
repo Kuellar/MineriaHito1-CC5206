@@ -13616,3 +13616,9 @@ footer {
   padding: 15px 0 10px 0;
   color: grey;
 }
+
+/* justify */
+p {
+  text-align: justify !important;
+  text-justify: inter-word !important;
+}
