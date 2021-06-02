@@ -52465,13 +52465,25 @@ z
           <div class="prompt input_prompt"></div>
           <div class="inner_cell">
             <div class="text_cell_render border-box-sizing rendered_html">
-              <h1 id="Carga-de-datos">
-                Carga de datos para contar palabras<a class="anchor-link" href="#Carga-de-datos"
+              <h1 id="Exp-frec">
+                Exploración por frecuencia<a class="anchor-link" href="#Exp-frec"
                   >&#182;</a
                 >
               </h1>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h2 id="Carga-de-datos">
+                Carga de datos<a class="anchor-link" href="#Carga-de-datos"
+                  >&#182;</a
+                >
+              </h2>
               <p>
-                Se cargaron los datos pero se usan solamente el tweet y su clase correspondiente.
+                Se cargaron los datos pero se usa sola el tweet y su clase correspondiente.
               </p>
             </div>
           </div>
@@ -52662,7 +52674,8 @@ z
           <div class="prompt input_prompt"></div>
           <div class="inner_cell">
             <div class="text_cell_render border-box-sizing rendered_html">
-              <h1>Frecuencia de palabras</h1>
+              <h2>Frecuencia de palabras</h2>
+              <p>A continuación se recorre todo el dataframe para contabilizar las palabras usadas en cada tweet.</p>
             </div>
           </div>
         </div>
@@ -52746,9 +52759,9 @@ z
           <div class="prompt input_prompt"></div>
           <div class="inner_cell">
             <div class="text_cell_render border-box-sizing rendered_html">
-              <h1 id="Resultados">
+              <h2 id="Resultados">
                 Resultados<a class="anchor-link" href="#Resultados">&#182;</a>
-              </h1>
+              </h2>
               <h3 id="Frecuencia-sin-considerar-stopwords">
                 Frecuencia sin considerar stopwords<a
                   class="anchor-link"
@@ -52756,6 +52769,13 @@ z
                   >&#182;</a
                 >
               </h3>
+              <p>
+                A continuación se muestran las 25 palabras más utilizadas en los tweets,
+                donde se filtraron los "StopWords" del diccionario español.
+                Podemos notar palabras que hacen referencia a sectores como
+                "Región", "Metropolitana" y "Santiago", dando indicios de información
+                útil a la hora de realizar clasificadores.
+              </p>
             </div>
           </div>
         </div>
@@ -52822,6 +52842,13 @@ z
                   >&#182;</a
                 >
               </h3>
+              <p>
+                A continuación se muestran las 25 palabras más utilizadas en los tweets
+                que fueron originados en la región Metropolitana.
+                Podemos notar palabras que hacen referencia a sectores dentro de Santiago como
+                "Condes" y "Providencia", dando información útil a la hora de clasificar
+                un tweet como perteneciente a la Región Metropolitana.
+              </p>
             </div>
           </div>
         </div>
@@ -52883,12 +52910,19 @@ z
           <div class="inner_cell">
             <div class="text_cell_render border-box-sizing rendered_html">
               <h3 id="Frecuencia-zona-norte">
-                Frecuencia zona norte<a
+                Frecuencia Zona Norte<a
                   class="anchor-link"
                   href="#Frecuencia-zona-norte"
                   >&#182;</a
                 >
               </h3>
+              <p>
+                A continuación se muestran las 25 palabras más utilizadas en los tweets
+                que fueron originados en la zona norte.
+                Podemos notar palabras que hacen referencia a ubicaciones dentro de la zona norte como
+                "Antofagasta", "Serena" y "Coquimbo", dando información útil a la hora de clasificar
+                un tweet como perteneciente a la Zona norte.
+              </p>
             </div>
           </div>
         </div>
@@ -52950,12 +52984,19 @@ z
           <div class="inner_cell">
             <div class="text_cell_render border-box-sizing rendered_html">
               <h3 id="Frecuencia-zona-Centro">
-                Frecuencia zona Centro<a
+                Frecuencia Zona Centro<a
                   class="anchor-link"
                   href="#Frecuencia-zona-Centro"
                   >&#182;</a
                 >
               </h3>
+              <p>
+                A continuación se muestran las 25 palabras más utilizadas en los tweets
+                que fueron originados en la zona centro.
+                Podemos notar palabras que hacen referencia a ubicaciones dentro de la zona centro como
+                "Valparaíso" y "Viña", dando información útil a la hora de clasificar
+                un tweet como perteneciente a la Zona Centro.
+              </p>
             </div>
           </div>
         </div>
@@ -53017,12 +53058,19 @@ z
           <div class="inner_cell">
             <div class="text_cell_render border-box-sizing rendered_html">
               <h3 id="Frecuencia-zona-sur">
-                Frecuencia zona sur<a
+                Frecuencia Zona Sur<a
                   class="anchor-link"
                   href="#Frecuencia-zona-sur"
                   >&#182;</a
                 >
               </h3>
+              <p>
+                A continuación se muestran las 25 palabras más utilizadas en los tweets
+                que fueron originados en la zona sur.
+                Podemos notar palabras que hacen referencia a ubicaciones dentro de la zona sur como
+                "Temuco" y "Araucanía dando información útil a la hora de clasificar
+                un tweet como perteneciente a la Zona Sur.
+              </p>
             </div>
           </div>
         </div>
@@ -53090,6 +53138,10 @@ z
                   >&#182;</a
                 >
               </h3>
+              <p>
+                Al considerar solo los sutantivos propios de los tweets, no se
+                aprecia información útil o diferente a la expuesta anteriormente.
+              </p>
             </div>
           </div>
         </div>
@@ -53150,11 +53202,11 @@ z
           <div class="prompt input_prompt"></div>
           <div class="inner_cell">
             <div class="text_cell_render border-box-sizing rendered_html">
-              <h1 id="Hashtags">
+              <h2 id="Hashtags">
                 Hashtags<a class="anchor-link" href="#Hashtags">&#182;</a>
-              </h1>
+              </h2>
               <p>
-                Se ve la frecuencia de los hashtags, de manera general y por
+                Frecuencia de los hashtags, de manera general y por
                 zonas.
               </p>
             </div>
@@ -53229,9 +53281,9 @@ z
           <div class="prompt input_prompt"></div>
           <div class="inner_cell">
             <div class="text_cell_render border-box-sizing rendered_html">
-              <h1 id="Resultados">
+              <h2 id="Resultados">
                 Resultados<a class="anchor-link" href="#Resultados">&#182;</a>
-              </h1>
+              </h2>
               <h3 id="Frecuencia-de-hashtags-general">
                 Frecuencia de hashtags general<a
                   class="anchor-link"
@@ -53239,6 +53291,11 @@ z
                   >&#182;</a
                 >
               </h3>
+              <p>
+                Al contar cada Hashtag podemos identificar que los tweets
+                que hacen mención a un equipo de futbol son los más
+                repetidos dada la recurrencia de los partidos.
+              </p>
             </div>
           </div>
         </div>
@@ -53306,6 +53363,9 @@ selfie&#39;: 8793,
                   >&#182;</a
                 >
               </h3>
+              <p>
+                A continuación se presentan los Hashtag más recurrentes de la Región Metropolitana.
+              </p>
             </div>
           </div>
         </div>
@@ -53373,6 +53433,9 @@ selfie&#39;: 8793,
                   >&#182;</a
                 >
               </h3>
+              <p>
+                A continuación se presentan los Hashtag más recurrentes de la zona norte.
+              </p>
             </div>
           </div>
         </div>
@@ -53440,6 +53503,9 @@ selfie&#39;: 8793,
                   >&#182;</a
                 >
               </h3>
+              <p>
+                A continuación se presentan los Hashtag más recurrentes de la zona centro.
+              </p>
             </div>
           </div>
         </div>
@@ -53507,6 +53573,9 @@ selfie&#39;: 8793,
                   >&#182;</a
                 >
               </h3>
+              <p>
+                A continuación se presentan los Hashtag más recurrentes de la zona sur.
+              </p>
             </div>
           </div>
         </div>
