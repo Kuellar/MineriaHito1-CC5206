@@ -281,6 +281,118 @@
           </div>
         </div>
 
+        <!-- Código Parte 1 -->
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="k">def</span> <span class="nf">criteria</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">x</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Código Parte 2 -->
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="k">def</span> <span class="nf">filter</span><span class="p">():</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> : </span><span class="si">%(levelname)s</span><span class="s2"> : </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+        <span class="p">)</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="s2">&quot;tweet_geolocalizated.csv&quot;</span><span class="p">,</span>
+        <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="n">names</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;idTweet&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;idUser&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;created_at&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tweet&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;latitud&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;longitud&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;class&quot;</span>
+            <span class="p">])</span>
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;latitud&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;latitud&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">criteria</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;longitud&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;longitud&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">criteria</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Original shapes: </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;latitud&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mf">53.15483</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;latitud&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mf">18.4746</span><span class="p">)]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;longitud&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mf">73.81622</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;longitud&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mf">68.93015</span><span class="p">)]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shapes of the filtered csv: </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;tweets_chile_geolocalizados.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;------ Elapsed time: </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="si">}</span><span class="s2"> -------&quot;</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Código Parte 3 -->
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="k">def</span> <span class="nf">preprocessing</span><span class="p">():</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> : </span><span class="si">%(levelname)s</span><span class="s2"> : </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+        <span class="p">)</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;/data/&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="n">folders</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;data_2013/&quot;</span><span class="p">,</span> <span class="s2">&quot;data_2014/&quot;</span><span class="p">,</span> <span class="s2">&quot;data_2015/&quot;</span><span class="p">,</span> <span class="s2">&quot;data_2016/&quot;</span><span class="p">,</span> <span class="s2">&quot;data_2017/&quot;</span><span class="p">]</span>
+    <span class="n">cant</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">folders</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder</span><span class="p">):</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+                <span class="n">folder</span> <span class="o">+</span> <span class="n">file</span><span class="p">,</span>
+                <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">names</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s2">&quot;idTweet&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;idUser&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;created_at&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;tweet&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;latitud&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;longitud&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;class&quot;</span>
+                    <span class="p">])</span>
+            <span class="n">cant</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;tweet_geolocalizated.csv&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;------- Elapsed time: </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="si">}</span><span class="s2"> ---------&quot;</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Inicio Exploración -->
         <div class="cell border-box-sizing text_cell rendered">
           <div class="prompt input_prompt"></div>
