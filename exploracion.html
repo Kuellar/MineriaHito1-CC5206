@@ -276,7 +276,17 @@
           <div class="inner_cell">
             <div class="text_cell_render border-box-sizing rendered_html">
               <h1 id="Titulo">Limpieza de tweets</h1>
-              <p>Aquí va una explicación :)</p>
+              <p>En este dataset de acuerdo a la geolocalizaci&oacute;n de los 
+                tweets, se pudo apreciar que hab&iacute;an tweets que no pertenec&iacute;n
+                a Chile, por lo tanto hab&iacute;a que eliminarlos. Primero
+                se recopil&oacute; informaci&oacute;n acerca de la geolocalizaci&oacute;n
+                de Chile en cuanto a las coordenadas de longitud y latitud. Los tweets 
+                que no estuvieran comprendidos en este rango de coordenadas fueron eliminados.
+                Se hizo otro preprocesamiento adicional, que fue convertir todas las coordenadas
+                de latitud y longitud del dataset a n&uacute;meros flotantes, puesto que hab&iacute;an datos
+                que eran cadenas de texto. Despu&eacute;s de esto se concatenaron todos los tweets
+                de los diferentes archivos y se guard&oacute; la informaci&oacute;n en un solo archivo .csv.
+              </p>
             </div>
           </div>
         </div>
