@@ -739,6 +739,26 @@ dtype: object</pre
             </div>
           </div>
         </div>
+        <!-- Corrección de fechas -->
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <p>
+                Luego se procede a implementar una función que permita incluir una columna que indique
+                la zona horaria UTC correspondiente a cada fecha en cada fila del dataset.
+                Se sabe que en Chile ocurren dos cambios de hora cada año, alternando entre
+                zonas horarias UTC -03:00 y -04:00, por lo que si se quiere pasar las horas
+                registradas en el dataset (en UTC 00:00) es necesario conocer las fechas de los cambios
+                de hora y agregar esa informacion al dataset.
+              </p>
+              <p>
+                Es por esto que la función itera por cada uno de los periodos entre cada cambio de
+                hora ocurrido entre 2013 y 2017, definiendo todas las fechas entre cada intervalo con el UTC respectivo.
+              </p>
+            </div>
+          </div>
+        </div>
         <div class="cell border-box-sizing code_cell rendered">
           <div class="input">
             <div class="prompt input_prompt">In&nbsp;[6]:</div>
@@ -767,6 +787,17 @@ dtype: object</pre
 </pre>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <p>
+                Finalmente se desocupa el espacio del ambiente eliminando las variables que no se van a usar más,
+                y se agregan las nuevas columnas year, hour, weekday y -UTC
+              </p>
             </div>
           </div>
         </div>
