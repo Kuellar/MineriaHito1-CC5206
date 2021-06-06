@@ -61,6 +61,53 @@
                 Metodología experimental asociada para responder las preguntas
                 propuestas.
               </p>
+              <p>Una de nuestras preguntas de investigaci&oacute;n era que si dado
+              un tweet, se pod&iacute;a implementar un modelo que predijera la zona
+              de donde se public&oacute; dicho tweet. Primeo, tenemos que aclarar que
+              en este trabajo se usaron t&eacute;cnicas de NLP para lograr tal objetivo.
+              Principalmente se desarrollaron dos modelos, LogisticRegression y Naive Bayes.
+              Adem&aacute;s se utilizaron diferentes t&eacute;nicas de preprocesamiento de texto
+              antes de pasar los tweets a los modelos. En el preprocesamiento del texto se us&oacute;
+              lematizaci&oacute;n que es obtener la ra&iacute;z de la palabra, 
+              otra t&eacute;nica para obtener tal prop&oacute;sito fue la de stemming, que es un algoritmo que 
+              se aplica para obterner el mismo resultado descriot anteriormente.  Se eliminaron las stops words
+              que son palabras que no aportan contenido al texto(conjunciones, preposiciones, art&iacute;culos).
+              Hay que destacar tambi&eacute;n que se usaron n-gramas para la representaci&oacute;n del texto, 
+              que no son m&aacute;s que secuencias de texto de longitud <i>n</i>.
+              
+              </p>
+              <p>
+                Entre las t&eacute;nicas de preprocesamiento y extracci&oacute;n de caracter&iacute;sticas 
+                que se usaron fueron:
+                <ul>
+                    <li>Naive Bayes con Bag of words(BoW) sin tokenizaci&oacute;n -- Acc: 0.58</li>
+                    <li>Naive bayes, BoW con tokenizador -- Acc: 0.58</li>
+                    <li>Naive Bayes, con BoW con tokenizador sin stop words: -- Acc: 0.58</li>
+                    <li>Naive Bayes, con BoW con tokenizador y lematizaci&oacute;n -- Acc: 0.57</li>
+                    <li>Naive Bayes, con BoW con tokenizador y stemming -- Acc: 0.57</li>
+                    <li>Naive Bayes, con n-gramas de longitud 5(mejor resultado) -- Acc: 0.59</li>
+                    <li>Logistic LogisticRegression , BoW con stop wordS -- Acc: 0.59</li>
+                </ul>
+             </p>
+             <p>
+                Entre las conclusiones que pudimos sacar de estos experimentos est&aacute;n:
+                <ul>
+                    <li>Efectivamente se puede entrenar un clasificador que prediga la localidad desde donde se emiti&oacute;
+                        un tweet dado las caracter&iacute;cas del texto.
+                    </li>
+                    <li>
+                        Los resultados de todos los experimentos con las diferentes combinaciones de par&aacute;metros usados dan                          resultados muy similares y esto puede deberse principalmente a que el estilo usado de escritura en 
+                        los tweets no hayan sido el correcto(mal escritos).
+                    </li>
+                    <li>
+                       Otra pregunta de investigaci&oacute;n planteada en este trabajo fue que la temporalidad de los tweets no 
+                       era un factor a tener en cuenta para clasificar por zonas.
+                        Tenemos que decir que para la clasificaci&oacute;n de los tweets, cuando se us&oacute; el dataset completo                        los resultados bajaron mucho hasta un Acc: 40%. Y cuando se usaron tweets de un a&ntilde;o en 
+                        espec&iacute;fico(2013 y 2017) el clasificador daba resultados mucho mejores como los reportados anteriormente.
+                    </li>
+
+                </ul>
+             </p>
             </div>
           </div>
         </div>
