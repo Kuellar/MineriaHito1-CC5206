@@ -61,9 +61,8 @@
                 Metodología experimental asociada para responder las preguntas
                 propuestas.
               </p>
-              <p>Una de nuestras preguntas de investigaci&oacute;n era que si dado
-              un tweet, se pod&iacute;a implementar un modelo que predijera la zona
-              de donde se public&oacute; dicho tweet. Primeo, tenemos que aclarar que
+              <h4>Dado un nuevo tweet, ¿será posible predecir de que región del país se publicó? (Ya implementado)</h4>
+              <p>Primero, tenemos que aclarar que
               en este trabajo se usaron t&eacute;cnicas de NLP para lograr tal objetivo.
               Principalmente se desarrollaron dos modelos, LogisticRegression y Naive Bayes.
               Adem&aacute;s se utilizaron diferentes t&eacute;nicas de preprocesamiento de texto
@@ -108,10 +107,38 @@
 
                 </ul>
              </p>
-              <br />
-              <br />
+              
+             En este trabajo tanto para el preprocesamiento de texto como para el entrenamiento de los modelos nos inspiramos en el siguiente colab <legend><b>https://colab.research.google.com/drive/1N_kK_S8LxfS0zdQ9MYNfaZCHegdfpMOX?usp=sharing</b></legend>
+             <h4>¿Qué características del texto son determinantes al saber la zona geográfica de procedencia?</h4>
+             <p>Para este punto se propone extraer distintos features desde el texto y usarlos para entrenar el clasificador.
+              Estos serán los emoticones, largo del texto y principalmente los Hashtag.
+              Se cree que estos Hashtags se refieren principalmente a entidades y por lo tanto su información sea más representativa de la zona que otro tipo de palabras.</p>
+             
+             <h4>¿Existe algún comportamiento asociado entre el momento de creación y la zona de donde procede?</h4>
+             <p>Para esto habría que extraer como feature el horario de creación y entregarlo como input al clasificador.</p>
+             
+             <h4>¿Los criterios usados para clasificar los twitts son atemporales?</h4>
+             <p>Para esto se propone dividir el dataset total en varios datasets.
+              Se entrena un clasificador por año (con datos de ese mismo año) y se probará su desempeño en datos de otros años.
+              Además se creará un clasificador que sea entrenado con datos de todos los años.
+              Si los criterios fueran atemporales no debiese existir tanta diferencia en el desempeño entre los clasificador frente a un mismo conjunto de datos, sin importar su año de origen.</p>
+             
+             <h4>¿Existen tópicos más frecuentes en una zona que en otra?</h4>
+             <p>En esta iteración del proyecto se efectuó un análisis sobre la distribución de los Hashtags, ya que se considera una buena aproximación al tópico que está siendo tocado en el tweet.
+              Para la siguiente iteración se propone correr un reconocedor de entidades sobre los textos, esto significa un trabajo extra en cuanto al manejo de herramientas poderosas de NLP.
+              Se espera que dado las diferentes ciudades, climas y culturas en chile, los tópicos hablados en cada región debieran ser diferentes.
+              </p>
+             
+             <h4>¿Existen palabras o modismos que se repliquen entre twitts de una misma zona geográfica?</h4>
+             <p>La idea tras esta pregunta es parecida a la de la pregunta anterior.
+              Se propone investigar a fondo la distribución de las palabras en cada región.
+              Luego eliminar las palabras comunes entre las diferentes clases, para finalmente presentarlas en un formato visual que sea claro y concluyente.</p>
+             
+             <br />
+            <br />
              En este trabajo tanto para el preprocesamiento de texto como para el entrenamiento de los modelos nos inspiramos en el siguiente colab <legend><b>https://colab.research.google.com/drive/1N_kK_S8LxfS0zdQ9MYNfaZCHegdfpMOX?usp=sharing</b></legend>
             </div>
+            
           </div>
         </div>
 
