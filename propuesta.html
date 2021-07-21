@@ -41,7 +41,12 @@
       <a href="exploracion.html">Exploración de datos</a>
       <a href="preguntas.html">Preguntas y problemas</a>
       <a class="active" href="propuesta.html">Propuesta experimental</a>
-      <a href="resultado.html">Resultado</a>
+      <a href="exp1.html">Experimento 1</a>
+      <a href="exp2.html">Experimento 2</a>
+      <a href="exp3.html">Experimento 3</a>
+      <a href="exp4.html">Experimento 4</a>
+      <a href="exp5.html">Experimento 5</a>
+      <a href="exp6.html">Experimento 6</a>
       <a href="contribucion.html">Contribución</a>
     </div>
 
@@ -61,22 +66,21 @@
                 Metodología experimental asociada para responder las preguntas
                 propuestas.
               </p>
-              <h4>Dado un nuevo tweet, ¿será posible predecir de que región del país se publicó? (Ya implementado)</h4>
+              <h4>Dado un nuevo tweet, ¿será posible predecir de que región del país se publicó?</h4>
               <p>Primero, tenemos que aclarar que
               en este trabajo se usaron t&eacute;cnicas de NLP para lograr tal objetivo.
               Principalmente se desarrollaron dos modelos, LogisticRegression y Naive Bayes.
               Adem&aacute;s se utilizaron diferentes t&eacute;nicas de preprocesamiento de texto
               antes de pasar los tweets a los modelos. En el preprocesamiento del texto se us&oacute;
-              lematizaci&oacute;n que es obtener la ra&iacute;z de la palabra, 
-              otra t&eacute;nica para obtener tal prop&oacute;sito fue la de stemming, que es un algoritmo que 
+              lematizaci&oacute;n que es obtener la ra&iacute;z de la palabra,
+              otra t&eacute;nica para obtener tal prop&oacute;sito fue la de stemming, que es un algoritmo que
               se aplica para obterner el mismo resultado descriot anteriormente.  Se eliminaron las stops words
               que son palabras que no aportan contenido al texto(conjunciones, preposiciones, art&iacute;culos).
-              Hay que destacar tambi&eacute;n que se usaron n-gramas para la representaci&oacute;n del texto, 
+              Hay que destacar tambi&eacute;n que se usaron n-gramas para la representaci&oacute;n del texto,
               que no son m&aacute;s que secuencias de texto de longitud <i>n</i>.
-              
               </p>
               <p>
-                Entre las t&eacute;nicas de preprocesamiento y extracci&oacute;n de caracter&iacute;sticas 
+                Entre las t&eacute;nicas de preprocesamiento y extracci&oacute;n de caracter&iacute;sticas
                 que se usaron fueron:
                 <ul>
                     <li>Naive Bayes con Bag of words(BoW) sin tokenizaci&oacute;n -- Acc: 0.58</li>
@@ -111,32 +115,31 @@
              <p>Para este punto se propone extraer distintos features desde el texto y usarlos para entrenar el clasificador.
               Estos serán los emoticones, largo del texto y principalmente los Hashtag.
               Se cree que estos Hashtags se refieren principalmente a entidades y por lo tanto su información sea más representativa de la zona que otro tipo de palabras.</p>
-             
+
              <h4>¿Existe algún comportamiento asociado entre el momento de creación y la zona de donde procede?</h4>
              <p>Para esto habría que extraer como feature el horario de creación y entregarlo como input al clasificador.</p>
-             
+
              <h4>¿Los criterios usados para clasificar los twitts son atemporales?</h4>
              <p>Para esto se propone dividir el dataset total en varios datasets.
               Se entrena un clasificador por año (con datos de ese mismo año) y se probará su desempeño en datos de otros años.
               Además se creará un clasificador que sea entrenado con datos de todos los años.
               Si los criterios fueran atemporales no debiese existir tanta diferencia en el desempeño entre los clasificador frente a un mismo conjunto de datos, sin importar su año de origen.</p>
-             
+
              <h4>¿Existen tópicos más frecuentes en una zona que en otra?</h4>
              <p>En esta iteración del proyecto se efectuó un análisis sobre la distribución de los Hashtags, ya que se considera una buena aproximación al tópico que está siendo tocado en el tweet.
               Para la siguiente iteración se propone correr un reconocedor de entidades sobre los textos, esto significa un trabajo extra en cuanto al manejo de herramientas poderosas de NLP.
               Se espera que dado las diferentes ciudades, climas y culturas en chile, los tópicos hablados en cada región debieran ser diferentes.
               </p>
-             
+
              <h4>¿Existen palabras o modismos que se repliquen entre twitts de una misma zona geográfica?</h4>
              <p>La idea tras esta pregunta es parecida a la de la pregunta anterior.
               Se propone investigar a fondo la distribución de las palabras en cada región.
               Luego eliminar las palabras comunes entre las diferentes clases, para finalmente presentarlas en un formato visual que sea claro y concluyente.</p>
-             
+
              <br />
             <br />
              En este trabajo tanto para el preprocesamiento de texto como para el entrenamiento de los modelos nos inspiramos en el siguiente colab <legend><b>https://colab.research.google.com/drive/1N_kK_S8LxfS0zdQ9MYNfaZCHegdfpMOX?usp=sharing</b></legend>
             </div>
-            
           </div>
         </div>
 
