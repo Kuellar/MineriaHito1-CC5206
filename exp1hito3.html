@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+    <title>Análisis de tweets geolocalizados en Chile</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="hito1.css" />
+
+    <!-- Loading mathjax macro -->
+    <!-- Load mathjax -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS_HTML"></script>
+    <!-- MathJax configuration -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+          tex2jax: {
+              inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+              displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+              processEscapes: true,
+              processEnvironments: true
+          },
+          // Center justify equations in code and markdown cells. Elsewhere
+          // we use CSS to left justify single line equations in code cells.
+          displayAlign: 'center',
+          "HTML-CSS": {
+              styles: {'.MathJax_Display': {"margin": 0}},
+              linebreaks: { automatic: true }
+          }
+      });
+    </script>
+    <!-- End of mathjax configuration -->
+  </head>
+
+  <body>
+    <!-- Barra de navegación -->
+    <div class="topnav">
+      <a href="index.html">Introducción</a>
+      <a href="exploracion.html">Exploración de datos</a>
+      <a href="propuesta.html">Preguntas y Propuesta</a>
+      <a href="exp1.html">Experimento 1 [hito2]</a>
+      <a class="active" href="exp1hito3.html">Experimento 1 [hito3]</a>
+      <a href="exp2.html">Experimento 2</a>
+      <a href="exp3.html">Experimento 3</a>
+      <a href="exp4.html">Experimento 4</a>
+      <a href="exp5.html">Experimento 5</a>
+      <a href="exp6.html">Experimento 6</a>
+      <a href="contribucion.html">Contribución</a>
+    </div>
+
+    <div tabindex="-1" id="notebook" class="border-box-sizing">
+      <div class="container" id="notebook-container">
+        <!-- Titulo -->
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h1>
+                Dado un nuevo tweet, ¿será posible predecir de que región del
+                país se publicó?
+              </h1>
+              <h3>Requisitos previos: Modelo - Embeddings Radio Biobio.</h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h2 id="Entrenar-nuestros-Embeddings">
+                Entrenar con Embeddings de radio Biobio<a
+                  class="anchor-link"
+                  href="#Entrenar-nuestros-Embeddings"
+                  >&#182;</a
+                >
+              </h2>
+              <p>
+                Para entrenar embeddings de radio Biobio, usaremos el paquete
+                gensim. Este trae una muy buena implementación de
+                <code>word2vec</code>.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[1]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">gensim</span><span class="o">==</span><span class="mf">3.8</span><span class="o">.</span><span class="mi">3</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[2]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="kn">import</span> <span class="nn">re</span>  
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span> 
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>  
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span> 
+<span class="kn">import</span> <span class="nn">string</span> 
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># word2vec</span>
+<span class="kn">from</span> <span class="nn">gensim.models</span> <span class="kn">import</span> <span class="n">Word2Vec</span><span class="p">,</span> <span class="n">KeyedVectors</span>
+<span class="kn">from</span> <span class="nn">gensim.models.phrases</span> <span class="kn">import</span> <span class="n">Phrases</span><span class="p">,</span> <span class="n">Phraser</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>  <span class="c1"># Setting up the loggings to monitor gensim</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(asctime)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">datefmt</span><span class="o">=</span> <span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+<span class="c1"># scikit-learn</span>
+<span class="kn">from</span> <span class="nn">sklearn.manifold</span> <span class="kn">import</span> <span class="n">TSNE</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">classification_report</span>
+<span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">FeatureUnion</span>
+<span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span>  
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">confusion_matrix</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.multiclass</span> <span class="kn">import</span> <span class="n">unique_labels</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">TransformerMixin</span>
+<span class="kn">from</span> <span class="nn">sklearn.naive_bayes</span> <span class="kn">import</span> <span class="n">MultinomialNB</span>
+<span class="c1"># visualizaciones</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
+<span class="kn">import</span> <span class="nn">plotly.graph_objects</span> <span class="k">as</span> <span class="nn">go</span>
+<span class="kn">from</span> <span class="nn">ipywidgets</span> <span class="kn">import</span> <span class="n">widgets</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[3]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;tweets_chile_geolocalizados2.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;idTweet&#39;</span><span class="p">,</span> <span class="s1">&#39;idUser&#39;</span><span class="p">,</span><span class="s1">&#39;created_at&#39;</span><span class="p">,</span><span class="s1">&#39;tweet&#39;</span><span class="p">,</span><span class="s1">&#39;latitud&#39;</span><span class="p">,</span><span class="s1">&#39;longitude&#39;</span><span class="p">,</span><span class="s1">&#39;class&#39;</span><span class="p">])</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[4]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">data</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt output_prompt">Out[4]:</div>
+
+                <div
+                  class="
+                    output_html
+                    rendered_html
+                    output_subarea output_execute_result
+                  "
+                >
+                  <div>
+                    <style scoped>
+                      .dataframe tbody tr th:only-of-type {
+                        vertical-align: middle;
+                      }
+
+                      .dataframe tbody tr th {
+                        vertical-align: top;
+                      }
+
+                      .dataframe thead th {
+                        text-align: right;
+                      }
+                    </style>
+                    <table border="1" class="dataframe">
+                      <thead>
+                        <tr style="text-align: right">
+                          <th></th>
+                          <th>idTweet</th>
+                          <th>idUser</th>
+                          <th>created_at</th>
+                          <th>tweet</th>
+                          <th>latitud</th>
+                          <th>longitude</th>
+                          <th>class</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th>0</th>
+                          <td>351490338654916608</td>
+                          <td>73787280</td>
+                          <td>2013-07-01 00:00:01</td>
+                          <td>
+                            “@naraback: Si bachelet fuera flaca, con qué l...
+                          </td>
+                          <td>-33.2615</td>
+                          <td>-70.6297</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>1</th>
+                          <td>351490339107901442</td>
+                          <td>325370754</td>
+                          <td>2013-07-01 00:00:01</td>
+                          <td>
+                            Si gana Longueira, la mínima posibilidad de ga...
+                          </td>
+                          <td>-32.9544</td>
+                          <td>-71.5317</td>
+                          <td>centro</td>
+                        </tr>
+                        <tr>
+                          <th>2</th>
+                          <td>351490342996033536</td>
+                          <td>96595015</td>
+                          <td>2013-07-01 00:00:02</td>
+                          <td>BRASIL CAMPEÓN MUNDIAL !!!! Gana a España 3-0</td>
+                          <td>-33.4395</td>
+                          <td>-70.6026</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>3</th>
+                          <td>351490358078742532</td>
+                          <td>172096924</td>
+                          <td>2013-07-01 00:00:06</td>
+                          <td>
+                            Denuevo la Bachelet... porque lo chilenos no a...
+                          </td>
+                          <td>-33.4133</td>
+                          <td>-70.5777</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>4</th>
+                          <td>351490399686230016</td>
+                          <td>115070990</td>
+                          <td>2013-07-01 00:00:16</td>
+                          <td>
+                            Esta que arde la cosa entre Allamand y Longuei...
+                          </td>
+                          <td>-33.4872</td>
+                          <td>-70.6531</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>...</th>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                        </tr>
+                        <tr>
+                          <th>9752490</th>
+                          <td>870066396109078528</td>
+                          <td>123745861</td>
+                          <td>2017-05-31 23:56:08</td>
+                          <td>
+                            Mi doctor y su mala idea de tener su consulta ...
+                          </td>
+                          <td>-33.4093</td>
+                          <td>-70.5732</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>9752491</th>
+                          <td>870066468024725505</td>
+                          <td>119277399</td>
+                          <td>2017-05-31 23:56:25</td>
+                          <td>
+                            Once romántica solitaria.. llenándome de energ...
+                          </td>
+                          <td>-33.4374</td>
+                          <td>-70.6334</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>9752492</th>
+                          <td>870066525520224256</td>
+                          <td>126125055</td>
+                          <td>2017-05-31 23:56:39</td>
+                          <td>
+                            Un hermoso tejido que me hizo mi madre para mi...
+                          </td>
+                          <td>-33.6081</td>
+                          <td>-70.6952</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>9752493</th>
+                          <td>870066808547454976</td>
+                          <td>68747705</td>
+                          <td>2017-05-31 23:57:46</td>
+                          <td>
+                            Holis!!! kattta_monroy 🙈🙊 #quemaneradereirnos ...
+                          </td>
+                          <td>-38.4167</td>
+                          <td>-72.3833</td>
+                          <td>sur</td>
+                        </tr>
+                        <tr>
+                          <th>9752494</th>
+                          <td>870067310605869056</td>
+                          <td>372267677</td>
+                          <td>2017-05-31 23:59:46</td>
+                          <td>
+                            Después de un largo día de prensa en Stgo junt...
+                          </td>
+                          <td>-33.4296</td>
+                          <td>-70.6210</td>
+                          <td>RM</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <p>9752495 rows × 7 columns</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h3 id="Cargar-el-dataset-y-limpiar">
+                Cargar el dataset y limpiar<a
+                  class="anchor-link"
+                  href="#Cargar-el-dataset-y-limpiar"
+                  >&#182;</a
+                >
+              </h3>
+              <p>
+                Nota: Pandas descomprime por si mismo el archivo bz2. Pueden
+                descomprimirlo manualmente usando 7zip.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[5]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">dataset_r</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[6]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">content</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;tweet&#39;</span><span class="p">]</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[7]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="c1"># descargar el modelo desde github</span>
+<span class="k">def</span> <span class="nf">read_model_from_github</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">&#39;./pretrained_models&#39;</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s1">&#39;./pretrained_models&#39;</span><span class="p">)</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;./pretrained_models/&#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="p">[</span>
+    <span class="n">read_model_from_github</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="s1">&#39;https://github.com/dccuchile/CC6205/releases/download/Data/biobio_w2v.model&#39;</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">]</span>
+<span class="c1"># cargar el modelo (si es que lo entrenaron desde local.)</span>
+<span class="n">biobio_w2v</span> <span class="o">=</span> <span class="n">KeyedVectors</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;./pretrained_models/biobio_w2v.model&quot;</span><span class="p">,</span> <span class="n">mmap</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt"></div>
+
+                <div
+                  class="output_subarea output_stream output_stderr output_text"
+                >
+                  <pre>
+INFO - 20:34:34: loading Word2VecKeyedVectors object from ./pretrained_models/biobio_w2v.model
+INFO - 20:34:35: loading wv recursively from ./pretrained_models/biobio_w2v.model.wv.* with mmap=r
+INFO - 20:34:35: setting ignored attribute vectors_norm to None
+INFO - 20:34:35: loading vocabulary recursively from ./pretrained_models/biobio_w2v.model.vocabulary.* with mmap=r
+INFO - 20:34:35: loading trainables recursively from ./pretrained_models/biobio_w2v.model.trainables.* with mmap=r
+INFO - 20:34:35: setting ignored attribute cum_table to None
+INFO - 20:34:35: loaded ./pretrained_models/biobio_w2v.model
+</pre
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[8]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">NUM_SAMPLES</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">NUM_SAMPLES</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span>
+        <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h3 id="Dividir-el-dataset-en-training-y-test">
+                Dividir el dataset en training y test<a
+                  class="anchor-link"
+                  href="#Dividir-el-dataset-en-training-y-test"
+                  >&#182;</a
+                >
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[9]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">tweet</span><span class="p">,</span>
+                                                    <span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">],</span>
+                                                    <span class="n">test_size</span><span class="o">=</span><span class="mf">0.33</span><span class="p">,</span>
+                                                    <span class="n">random_state</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <p>
+                Primero, crearemos el Transformer con el cual convertiremos el
+                documento a vector. (puede que les sirva para la tarea...)
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h3 id="Doc2vec">
+                Doc2vec<a class="anchor-link" href="#Doc2vec">&#182;</a>
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[10]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="k">class</span> <span class="nc">Doc2VecTransformer</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">TransformerMixin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Transforma tweets a representaciones vectoriales usando algún modelo de Word Embeddings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">aggregation_func</span><span class="p">):</span>
+        <span class="c1"># extraemos los embeddings desde el objeto contenedor. ojo con esta parte.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">wv</span> 
+        
+        <span class="c1"># indicamos la función de agregación (np.min, np.max, np.mean, np.sum, ...)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_func</span> <span class="o">=</span> <span class="n">aggregation_func</span>
+
+    <span class="k">def</span> <span class="nf">simple_tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tokenizador. Elimina signos de puntuación, lleva las letras a minúscula(opcional) y </span>
+<span class="sd">           separa el tweet por espacios.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">lower</span><span class="p">:</span>
+            <span class="n">doc</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">maketrans</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">doc</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">maketrans</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">))</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        
+        <span class="n">doc_embeddings</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">X</span><span class="p">:</span>
+            <span class="c1"># tokenizamos el documento. Se llevan todos los tokens a minúscula. </span>
+            <span class="c1"># ojo con esto, ya que puede que tokens con minúscula y mayúscula tengan</span>
+            <span class="c1"># distintas representaciones</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simple_tokenizer</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">lower</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> 
+            
+            <span class="n">selected_wv</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">token</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">vocab</span><span class="p">:</span>
+                    <span class="n">selected_wv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">[</span><span class="n">token</span><span class="p">])</span>
+                    
+            <span class="c1"># si seleccionamos por lo menos un embedding para el tweet, lo agregamos y luego lo añadimos.</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">selected_wv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">doc_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_func</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">selected_wv</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">doc_embeddings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">doc_embedding</span><span class="p">)</span>
+            <span class="c1"># si no, añadimos un vector de ceros que represente a ese documento.</span>
+            <span class="k">else</span><span class="p">:</span> 
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No pude encontrar ningún embedding en el tweet: </span><span class="si">{}</span><span class="s1">. Agregando vector de ceros.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">doc</span><span class="p">))</span>
+                <span class="n">doc_embeddings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">vector_size</span><span class="p">))</span> <span class="c1"># la dimension del modelo </span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">doc_embeddings</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>    
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[11]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">doc2vec_mean</span> <span class="o">=</span> <span class="n">Doc2VecTransformer</span><span class="p">(</span><span class="n">biobio_w2v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">)</span>
+<span class="n">doc2vec_sum</span> <span class="o">=</span> <span class="n">Doc2VecTransformer</span><span class="p">(</span><span class="n">biobio_w2v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">)</span>
+<span class="n">doc2vec_max</span> <span class="o">=</span> <span class="n">Doc2VecTransformer</span><span class="p">(</span><span class="n">biobio_w2v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h1 id="Embeddings-sin-Bags-of-Words">
+                Embeddings sin Bags of Words<a
+                  class="anchor-link"
+                  href="#Embeddings-sin-Bags-of-Words"
+                  >&#182;</a
+                >
+              </h1>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[12]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">clf</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000000</span><span class="p">)</span>
+<span class="n">pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([(</span><span class="s1">&#39;doc2vec&#39;</span><span class="p">,</span> <span class="n">doc2vec_sum</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;clf&#39;</span><span class="p">,</span> <span class="n">clf</span><span class="p">)])</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[13]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">pipeline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt"></div>
+
+                <div
+                  class="output_subarea output_stream output_stdout output_text"
+                >
+                  <pre>
+No pude encontrar ningún embedding en el tweet: @_Tantalia @CB_LaSerena contactese con @Sexta_CBLS. Agregando vector de ceros.
+No pude encontrar ningún embedding en el tweet: #Candy #leGustaElSexoEnExceso! Jajajaja http://t.co/DOXnmDMeof. Agregando vector de ceros.
+...
+No pude encontrar ningún embedding en el tweet: @Alex_LosAngeles ¡¡gracias!! ^^ un abrazote para ti tambien :). Agregando vector de ceros.
+No pude encontrar ningún embedding en el tweet: @FranciscaBV 😱😍 hay unos que adoro!!!!. Agregando vector de ceros.
+</pre
+                  >
+                </div>
+              </div>
+
+              <div class="output_area">
+                <div class="prompt output_prompt">Out[13]:</div>
+
+                <div class="output_text output_subarea output_execute_result">
+                  <pre>
+Pipeline(steps=[(&#39;doc2vec&#39;,
+                  Doc2VecTransformer(aggregation_func=&lt;function sum at 0x0000019505718E50&gt;,
+                                    model=&lt;gensim.models.keyedvectors.Word2VecKeyedVectors object at 0x000001950B3C55B0&gt;)),
+                (&#39;clf&#39;, LogisticRegression(max_iter=1000000))])</pre
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <p><strong>Predecimos y evaluamos:</strong></p>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[14]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">y_pred</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt"></div>
+
+                <div
+                  class="output_subarea output_stream output_stdout output_text"
+                >
+                  <pre>
+No pude encontrar ningún embedding en el tweet: @CamilaRieraSoto @KarendTV @buenosdiatodos Fans de los cocker 😀😀😀. Agregando vector de ceros.
+No pude encontrar ningún embedding en el tweet: Con la dinastiaaaaaaa ❤️❤️ http://t.co/0cGgh8bOAm. Agregando vector de ceros.
+...
+No pude encontrar ningún embedding en el tweet: 😞 cueck.. Agregando vector de ceros.
+No pude encontrar ningún embedding en el tweet: Los wns secooos!! #dancecrewboom. Agregando vector de ceros.
+</pre
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[15]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">conf_matrix</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">conf_matrix</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt"></div>
+
+                <div
+                  class="output_subarea output_stream output_stdout output_text"
+                >
+                  <pre>
+[[1227  908  607  566]
+  [ 667 1354  631  640]
+  [ 656  866 1204  578]
+  [ 587  807  585 1317]]
+</pre
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[16]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">classification_report</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">))</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt"></div>
+
+                <div
+                  class="output_subarea output_stream output_stdout output_text"
+                >
+                  <pre>
+              precision    recall  f1-score   support
+
+          RM       0.39      0.37      0.38      3308
+      centro       0.34      0.41      0.37      3292
+        norte       0.40      0.36      0.38      3304
+          sur       0.42      0.40      0.41      3296
+
+    accuracy                           0.39     13200
+    macro avg       0.39      0.39      0.39     13200
+weighted avg       0.39      0.39      0.39     13200
+
+</pre
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h1 id="Embeddins-con-Bag-of-Words">
+                Embeddins con Bag of Words<a
+                  class="anchor-link"
+                  href="#Embeddins-con-Bag-of-Words"
+                  >&#182;</a
+                >
+              </h1>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[17]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="c1"># Definimos el vectorizador para convertir el texto a BoW:</span>
+<span class="n">vectorizer_embeddings</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">analyzer</span><span class="o">=</span><span class="s1">&#39;word&#39;</span><span class="p">,</span> <span class="n">ngram_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+<span class="c1"># Definimos el clasificador que usaremos.</span>
+<span class="n">clf_embeddings</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000000</span><span class="p">)</span>
+
+<span class="c1"># Definimos el pipeline</span>
+<span class="n">text_clf_embeddings</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([(</span><span class="s1">&#39;features&#39;</span><span class="p">,</span>
+                        <span class="n">FeatureUnion</span><span class="p">([(</span><span class="s1">&#39;bow&#39;</span><span class="p">,</span> <span class="n">vectorizer_embeddings</span><span class="p">),</span>
+                                      <span class="p">(</span><span class="s1">&#39;doc2vec&#39;</span><span class="p">,</span> <span class="n">doc2vec_sum</span><span class="p">)])),</span> <span class="p">(</span><span class="s1">&#39;clf&#39;</span><span class="p">,</span> <span class="n">clf_embeddings</span><span class="p">)])</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[18]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">text_clf_embeddings</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt"></div>
+
+                <div
+                  class="output_subarea output_stream output_stdout output_text"
+                >
+                  <pre>
+No pude encontrar ningún embedding en el tweet: @_Tantalia @CB_LaSerena contactese con @Sexta_CBLS. Agregando vector de ceros.
+No pude encontrar ningún embedding en el tweet: #Candy #leGustaElSexoEnExceso! Jajajaja http://t.co/DOXnmDMeof. Agregando vector de ceros.
+...
+No pude encontrar ningún embedding en el tweet: @Alex_LosAngeles ¡¡gracias!! ^^ un abrazote para ti tambien :). Agregando vector de ceros.
+No pude encontrar ningún embedding en el tweet: @FranciscaBV 😱😍 hay unos que adoro!!!!. Agregando vector de ceros.
+</pre
+                  >
+                </div>
+              </div>
+
+              <div class="output_area">
+                <div class="prompt output_prompt">Out[18]:</div>
+
+                <div class="output_text output_subarea output_execute_result">
+                  <pre>
+Pipeline(steps=[(&#39;features&#39;,
+                  FeatureUnion(transformer_list=[(&#39;bow&#39;,
+                                                  CountVectorizer(ngram_range=(1,
+                                                                              2))),
+                                                (&#39;doc2vec&#39;,
+                                                  Doc2VecTransformer(aggregation_func=&lt;function sum at 0x0000019505718E50&gt;,
+                                                                    model=&lt;gensim.models.keyedvectors.Word2VecKeyedVectors object at 0x000001950B3C55B0&gt;))])),
+                (&#39;clf&#39;, LogisticRegression(max_iter=1000000))])</pre
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[19]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">text_clf_embeddings</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="n">y_pred_embeddings</span> <span class="o">=</span> <span class="n">text_clf_embeddings</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt"></div>
+
+                <div
+                  class="output_subarea output_stream output_stdout output_text"
+                >
+                  <pre>
+No pude encontrar ningún embedding en el tweet: @_Tantalia @CB_LaSerena contactese con @Sexta_CBLS. Agregando vector de ceros.
+No pude encontrar ningún embedding en el tweet: #Candy #leGustaElSexoEnExceso! Jajajaja http://t.co/DOXnmDMeof. Agregando vector de ceros.
+...
+No pude encontrar ningún embedding en el tweet: 😞 cueck.. Agregando vector de ceros.
+No pude encontrar ningún embedding en el tweet: Los wns secooos!! #dancecrewboom. Agregando vector de ceros.
+</pre
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[20]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="c1"># usando la matriz de confusión:</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_embeddings</span><span class="p">),</span>
+      <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">-------------------------------------------------------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="c1"># usando el classification report:</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">classification_report</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_embeddings</span><span class="p">))</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt"></div>
+
+                <div
+                  class="output_subarea output_stream output_stdout output_text"
+                >
+                  <pre>
+[[1413  761  609  525]
+  [ 615 1521  617  539]
+  [ 600  730 1452  522]
+  [ 547  665  513 1571]] 
+
+-------------------------------------------------------
+
+              precision    recall  f1-score   support
+
+          RM       0.45      0.43      0.44      3308
+      centro       0.41      0.46      0.44      3292
+        norte       0.46      0.44      0.45      3304
+          sur       0.50      0.48      0.49      3296
+
+    accuracy                           0.45     13200
+    macro avg       0.45      0.45      0.45     13200
+weighted avg       0.45      0.45      0.45     13200
+
+</pre
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div tabindex="-1" id="notebook" class="border-box-sizing">
+      <div class="container" id="notebook-container">
+        <!-- Titulo -->
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h1>
+                Dado un nuevo tweet, ¿será posible predecir de que región del
+                país se publicó?
+              </h1>
+              <h3>Requisitos previos: Modelo - Embeddings propio.</h3>
+              <ul>
+                <li>
+                  <a
+                    href="https://anakena.dcc.uchile.cl/~icuellar/MineriaDeDatos/Hito3/model_w2v.model"
+                    >Requisito 1</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="https://anakena.dcc.uchile.cl/~icuellar/MineriaDeDatos/Hito3/model_w2v.model.vectors.npy"
+                    >Requisito 2</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h2 id="Entrenar-nuestros-Embeddings">
+                Entrenar nuestros Embeddings<a
+                  class="anchor-link"
+                  href="#Entrenar-nuestros-Embeddings"
+                  >&#182;</a
+                >
+              </h2>
+              <p>
+                Para entrenar nuestros embeddings, usaremos el paquete gensim.
+                Este trae una muy buena implementación de <code>word2vec</code>.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[1]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="o">!</span>pip install --upgrade gensim
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[3]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="kn">import</span> <span class="nn">re</span>  
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span> 
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>  
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span> 
+<span class="kn">import</span> <span class="nn">string</span> 
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># word2vec</span>
+<span class="kn">from</span> <span class="nn">gensim.models</span> <span class="kn">import</span> <span class="n">Word2Vec</span><span class="p">,</span> <span class="n">KeyedVectors</span>
+<span class="kn">from</span> <span class="nn">gensim.models.phrases</span> <span class="kn">import</span> <span class="n">Phrases</span><span class="p">,</span> <span class="n">Phraser</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>  <span class="c1"># Setting up the loggings to monitor gensim</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(asctime)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">datefmt</span><span class="o">=</span> <span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+<span class="c1"># scikit-learn</span>
+<span class="kn">from</span> <span class="nn">sklearn.manifold</span> <span class="kn">import</span> <span class="n">TSNE</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">classification_report</span>
+<span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">FeatureUnion</span>
+<span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span>  
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">confusion_matrix</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.multiclass</span> <span class="kn">import</span> <span class="n">unique_labels</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">TransformerMixin</span>
+<span class="kn">from</span> <span class="nn">sklearn.naive_bayes</span> <span class="kn">import</span> <span class="n">MultinomialNB</span>
+<span class="c1"># visualizaciones</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
+<span class="kn">import</span> <span class="nn">plotly.graph_objects</span> <span class="k">as</span> <span class="nn">go</span>
+<span class="kn">from</span> <span class="nn">ipywidgets</span> <span class="kn">import</span> <span class="n">widgets</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[4]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;tweets_chile_geolocalizados2.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;idTweet&#39;</span><span class="p">,</span> <span class="s1">&#39;idUser&#39;</span><span class="p">,</span><span class="s1">&#39;created_at&#39;</span><span class="p">,</span><span class="s1">&#39;tweet&#39;</span><span class="p">,</span><span class="s1">&#39;latitud&#39;</span><span class="p">,</span><span class="s1">&#39;longitude&#39;</span><span class="p">,</span><span class="s1">&#39;class&#39;</span><span class="p">])</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[5]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">data</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt output_prompt">Out[5]:</div>
+
+                <div
+                  class="
+                    output_html
+                    rendered_html
+                    output_subarea output_execute_result
+                  "
+                >
+                  <div>
+                    <style scoped>
+                      .dataframe tbody tr th:only-of-type {
+                        vertical-align: middle;
+                      }
+
+                      .dataframe tbody tr th {
+                        vertical-align: top;
+                      }
+
+                      .dataframe thead th {
+                        text-align: right;
+                      }
+                    </style>
+                    <table border="1" class="dataframe">
+                      <thead>
+                        <tr style="text-align: right">
+                          <th></th>
+                          <th>idTweet</th>
+                          <th>idUser</th>
+                          <th>created_at</th>
+                          <th>tweet</th>
+                          <th>latitud</th>
+                          <th>longitude</th>
+                          <th>class</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th>0</th>
+                          <td>351490338654916608</td>
+                          <td>73787280</td>
+                          <td>2013-07-01 00:00:01</td>
+                          <td>
+                            “@naraback: Si bachelet fuera flaca, con qué l...
+                          </td>
+                          <td>-33.2615</td>
+                          <td>-70.6297</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>1</th>
+                          <td>351490339107901442</td>
+                          <td>325370754</td>
+                          <td>2013-07-01 00:00:01</td>
+                          <td>
+                            Si gana Longueira, la mínima posibilidad de ga...
+                          </td>
+                          <td>-32.9544</td>
+                          <td>-71.5317</td>
+                          <td>centro</td>
+                        </tr>
+                        <tr>
+                          <th>2</th>
+                          <td>351490342996033536</td>
+                          <td>96595015</td>
+                          <td>2013-07-01 00:00:02</td>
+                          <td>BRASIL CAMPEÓN MUNDIAL !!!! Gana a España 3-0</td>
+                          <td>-33.4395</td>
+                          <td>-70.6026</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>3</th>
+                          <td>351490358078742532</td>
+                          <td>172096924</td>
+                          <td>2013-07-01 00:00:06</td>
+                          <td>
+                            Denuevo la Bachelet... porque lo chilenos no a...
+                          </td>
+                          <td>-33.4133</td>
+                          <td>-70.5777</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>4</th>
+                          <td>351490399686230016</td>
+                          <td>115070990</td>
+                          <td>2013-07-01 00:00:16</td>
+                          <td>
+                            Esta que arde la cosa entre Allamand y Longuei...
+                          </td>
+                          <td>-33.4872</td>
+                          <td>-70.6531</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>...</th>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                        </tr>
+                        <tr>
+                          <th>9752490</th>
+                          <td>870066396109078528</td>
+                          <td>123745861</td>
+                          <td>2017-05-31 23:56:08</td>
+                          <td>
+                            Mi doctor y su mala idea de tener su consulta ...
+                          </td>
+                          <td>-33.4093</td>
+                          <td>-70.5732</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>9752491</th>
+                          <td>870066468024725505</td>
+                          <td>119277399</td>
+                          <td>2017-05-31 23:56:25</td>
+                          <td>
+                            Once romántica solitaria.. llenándome de energ...
+                          </td>
+                          <td>-33.4374</td>
+                          <td>-70.6334</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>9752492</th>
+                          <td>870066525520224256</td>
+                          <td>126125055</td>
+                          <td>2017-05-31 23:56:39</td>
+                          <td>
+                            Un hermoso tejido que me hizo mi madre para mi...
+                          </td>
+                          <td>-33.6081</td>
+                          <td>-70.6952</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>9752493</th>
+                          <td>870066808547454976</td>
+                          <td>68747705</td>
+                          <td>2017-05-31 23:57:46</td>
+                          <td>
+                            Holis!!! kattta_monroy 🙈🙊 #quemaneradereirnos ...
+                          </td>
+                          <td>-38.4167</td>
+                          <td>-72.3833</td>
+                          <td>sur</td>
+                        </tr>
+                        <tr>
+                          <th>9752494</th>
+                          <td>870067310605869056</td>
+                          <td>372267677</td>
+                          <td>2017-05-31 23:59:46</td>
+                          <td>
+                            Después de un largo día de prensa en Stgo junt...
+                          </td>
+                          <td>-33.4296</td>
+                          <td>-70.6210</td>
+                          <td>RM</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <p>9752495 rows × 7 columns</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h3 id="Cargar-el-dataset-y-limpiar">
+                Cargar el dataset y limpiar<a
+                  class="anchor-link"
+                  href="#Cargar-el-dataset-y-limpiar"
+                  >&#182;</a
+                >
+              </h3>
+              <p>
+                Nota: Pandas descomprime por si mismo el archivo bz2. Pueden
+                descomprimirlo manualmente usando 7zip.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[6]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">dataset_r</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html"></div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[7]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">content</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;tweet&#39;</span><span class="p">]</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[8]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="c1"># descargar el modelo desde github</span>
+<span class="k">def</span> <span class="nf">read_model_from_github</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">&#39;./pretrained_models&#39;</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s1">&#39;./pretrained_models&#39;</span><span class="p">)</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;./pretrained_models/&#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">True</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[9]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="c1"># cargar el modelo (si es que lo entrenaron desde local.)</span>
+<span class="n">model_w2v</span> <span class="o">=</span> <span class="n">KeyedVectors</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;./model_w2v.model&quot;</span><span class="p">,</span> <span class="n">mmap</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt"></div>
+
+                <div
+                  class="output_subarea output_stream output_stderr output_text"
+                >
+                  <pre>
+INFO - 19:40:15: loading KeyedVectors object from ./model_w2v.model
+INFO - 19:40:15: loading vectors from ./model_w2v.model.vectors.npy with mmap=r
+INFO - 19:40:15: KeyedVectors lifecycle event {&#39;fname&#39;: &#39;./model_w2v.model&#39;, &#39;datetime&#39;: &#39;2021-07-23T19:40:15.605921&#39;, &#39;gensim&#39;: &#39;4.0.1&#39;, &#39;python&#39;: &#39;3.8.8 (default, Apr 13 2021, 15:08:03) [MSC v.1916 64 bit (AMD64)]&#39;, &#39;platform&#39;: &#39;Windows-10-10.0.19041-SP0&#39;, &#39;event&#39;: &#39;loaded&#39;}
+</pre
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[10]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">NUM_SAMPLES</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">NUM_SAMPLES</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span>
+        <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h3 id="Dividir-el-dataset-en-training-y-test">
+                Dividir el dataset en training y test<a
+                  class="anchor-link"
+                  href="#Dividir-el-dataset-en-training-y-test"
+                  >&#182;</a
+                >
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[11]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">tweet</span><span class="p">,</span>
+                                                    <span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">],</span>
+                                                    <span class="n">test_size</span><span class="o">=</span><span class="mf">0.33</span><span class="p">,</span>
+                                                    <span class="n">random_state</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <p>
+                Primero, crearemos el Transformer con el cual convertiremos el
+                documento a vector. (puede que les sirva para la tarea...)
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h3 id="Doc2vec">
+                Doc2vec<a class="anchor-link" href="#Doc2vec">&#182;</a>
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[12]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="k">class</span> <span class="nc">Doc2VecTransformer</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">TransformerMixin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Transforma tweets a representaciones vectoriales usando algún modelo de Word Embeddings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">aggregation_func</span><span class="p">):</span>
+        <span class="c1"># extraemos los embeddings desde el objeto contenedor. ojo con esta parte.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        
+        <span class="c1"># indicamos la función de agregación (np.min, np.max, np.mean, np.sum, ...)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_func</span> <span class="o">=</span> <span class="n">aggregation_func</span>
+
+    <span class="k">def</span> <span class="nf">simple_tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">lower</span><span class="p">:</span>
+            <span class="n">doc</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">maketrans</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">doc</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">maketrans</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">))</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        
+        <span class="n">doc_embeddings</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">X</span><span class="p">:</span>
+            <span class="c1"># tokenizamos el documento. Se llevan todos los tokens a minúscula. </span>
+            <span class="c1"># ojo con esto, ya que puede que tokens con minúscula y mayúscula tengan</span>
+            <span class="c1"># distintas representaciones</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simple_tokenizer</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">lower</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> 
+            
+            <span class="n">selected_wv</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="fm">__contains__</span><span class="p">(</span><span class="n">token</span><span class="p">)):</span>
+                    <span class="n">selected_wv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">[</span><span class="n">token</span><span class="p">])</span>
+                    
+            <span class="c1"># si seleccionamos por lo menos un embedding para el tweet, lo agregamos y luego lo añadimos.</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">selected_wv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">doc_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_func</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">selected_wv</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">doc_embeddings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">doc_embedding</span><span class="p">)</span>
+            <span class="c1"># si no, añadimos un vector de ceros que represente a ese documento.</span>
+            <span class="k">else</span><span class="p">:</span> 
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No pude encontrar ningún embedding en el tweet: </span><span class="si">{}</span><span class="s1">. Agregando vector de ceros.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">doc</span><span class="p">))</span>
+                <span class="n">doc_embeddings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">vector_size</span><span class="p">))</span> <span class="c1"># la dimension del modelo </span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">doc_embeddings</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>    
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[13]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">models_mean</span> <span class="o">=</span> <span class="n">Doc2VecTransformer</span><span class="p">(</span><span class="n">model_w2v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">)</span>
+<span class="n">models_sum</span> <span class="o">=</span> <span class="n">Doc2VecTransformer</span><span class="p">(</span><span class="n">model_w2v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">)</span>
+<span class="n">models_max</span> <span class="o">=</span> <span class="n">Doc2VecTransformer</span><span class="p">(</span><span class="n">model_w2v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+<span class="n">models_min</span> <span class="o">=</span> <span class="n">Doc2VecTransformer</span><span class="p">(</span><span class="n">model_w2v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[14]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="c1"># Definimos el vectorizador para convertir el texto a BoW:</span>
+<span class="n">vectorizer_models</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">analyzer</span><span class="o">=</span><span class="s1">&#39;word&#39;</span><span class="p">,</span> <span class="n">ngram_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+<span class="c1"># Definimos el clasificador que usaremos.</span>
+<span class="n">clf_models</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+
+<span class="c1"># Definimos el pipeline</span>
+<span class="n">text_clf_models</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([(</span><span class="s1">&#39;features&#39;</span><span class="p">,</span>
+                        <span class="n">FeatureUnion</span><span class="p">([(</span><span class="s1">&#39;bow&#39;</span><span class="p">,</span> <span class="n">vectorizer_models</span><span class="p">),</span>
+                                      <span class="p">(</span><span class="s1">&#39;doc2vec&#39;</span><span class="p">,</span> <span class="n">models_sum</span><span class="p">)])),</span> <span class="p">(</span><span class="s1">&#39;clf&#39;</span><span class="p">,</span> <span class="n">clf_models</span><span class="p">)])</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[15]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">text_clf_models</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="n">y_pred_models</span> <span class="o">=</span> <span class="n">text_clf_models</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt"></div>
+
+                <div
+                  class="output_subarea output_stream output_stdout output_text"
+                >
+                  <pre>
+No pude encontrar ningún embedding en el tweet: Humillados! !!!. Agregando vector de ceros.
+No pude encontrar ningún embedding en el tweet: Castigoooo divinooooooo!!! Jajaaaaaaaaaaaaa!!!!  #nochedesuperfangeneracionesc. Agregando vector de ceros.
+No pude encontrar ningún embedding en el tweet: @cjinostroza gracias.camiloooo..saludos :(. Agregando vector de ceros.
+...
+No pude encontrar ningún embedding en el tweet: @Camii_Morales_A juegazoooo!!!. Agregando vector de ceros.
+No pude encontrar ningún embedding en el tweet: Mias #YaVieneCarolinaFest. Agregando vector de ceros.
+</pre
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[16]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="c1"># usando la matriz de confusión:</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_models</span><span class="p">),</span>
+      <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">-------------------------------------------------------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="c1"># usando el classification report:</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">classification_report</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_models</span><span class="p">))</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt"></div>
+
+                <div
+                  class="output_subarea output_stream output_stdout output_text"
+                >
+                  <pre>
+[[1501  730  544  533]
+  [ 649 1460  604  579]
+  [ 609  695 1513  487]
+  [ 577  611  545 1563]] 
+
+-------------------------------------------------------
+
+              precision    recall  f1-score   support
+
+          RM       0.45      0.45      0.45      3308
+      centro       0.42      0.44      0.43      3292
+        norte       0.47      0.46      0.46      3304
+          sur       0.49      0.47      0.48      3296
+
+    accuracy                           0.46     13200
+    macro avg       0.46      0.46      0.46     13200
+weighted avg       0.46      0.46      0.46     13200
+
+</pre
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h2>Conclusión</h2>
+              <p>
+                Durante el hito 2 se elaboró un clasificador que usa solo Bag of
+                words cuyo desempeño fue cercano a 0.6 en varias métricas Dado
+                lo prometedor de estos resultados se esperaba mejorar en el hito
+                3.
+              </p>
+              <p>
+                Para lograr este objetivo se propone usar word embeddings. Se
+                usaron un dos tipos diferentes, unos entrenados con noticias de
+                la radio bio-bio( extraidos del auxiliar 2 de NLP del año
+                pasado) y unos entrenados con el mismo corpus que estamos
+                trabajando. Se experimentó con ambos embeddings llegando cerca
+                del 0.45 de accuracy.
+              </p>
+              <p>
+                Si bien usando un modelo más complejo (BOW y embeddings) se
+                tiene peores resultados, es necesario aclarar que la comparación
+                no es justa
+              </p>
+              <p>
+                En el primer clasificador se uso mas de 800000 muestras por
+                clase para entrenar, en cambio en los otros 2 sólo 10000. Esto
+                último se debe a que el tiempo necesario para entrenar para una
+                muestra mayor excedia lo aceptable.
+              </p>
+              <p>
+                Pese a lo anterior y respondiendo la pregunta Si, es posible
+                crear un clasificador con resultados aceptables Para un futuro
+                sin duda, el siguiente paso seria buscar opciones para entrenar
+                con mas datos.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- FIN -->
+      </div>
+    </div>
+    <footer>
+      <span>Introducción a la Minería de Datos (CC5206) - Otoño 2021</span>
+    </footer>
+  </body>
+</html>

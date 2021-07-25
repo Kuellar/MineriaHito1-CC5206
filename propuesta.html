@@ -39,9 +39,9 @@
     <div class="topnav">
       <a href="index.html">Introducción</a>
       <a href="exploracion.html">Exploración de datos</a>
-      <a href="preguntas.html">Preguntas y problemas</a>
-      <a class="active" href="propuesta.html">Propuesta experimental</a>
-      <a href="exp1.html">Experimento 1</a>
+      <a class="active" href="propuesta.html">Preguntas y Propuesta</a>
+      <a href="exp1.html">Experimento 1 [hito2]</a>
+      <a href="exp1hito3.html">Experimento 1 [hito3]</a>
       <a href="exp2.html">Experimento 2</a>
       <a href="exp3.html">Experimento 3</a>
       <a href="exp4.html">Experimento 4</a>
@@ -58,7 +58,7 @@
           <div class="inner_cell">
             <div class="text_cell_render border-box-sizing rendered_html">
               <h1 id="Titulo">
-                Propuesta experimental<a class="anchor-link" href="#Titulo"
+                Preguntas y Propuesta experimental<a class="anchor-link" href="#Titulo"
                   >&#182;</a
                 >
               </h1>
@@ -66,7 +66,7 @@
                 Metodología experimental asociada para responder las preguntas
                 propuestas.
               </p>
-              <h4>Dado un nuevo tweet, ¿será posible predecir de que región del país se publicó?</h4>
+              <h3>Dado un nuevo tweet, ¿será posible predecir de que región del país se publicó?</h3>
               <p>Primero, tenemos que aclarar que
               en este trabajo se usaron t&eacute;cnicas de NLP para lograr tal objetivo.
               Principalmente se desarrollaron dos modelos, LogisticRegression y Naive Bayes.
@@ -111,27 +111,27 @@
 
                 </ul>
              </p>
-             <h4>¿Qué características del texto son determinantes al saber la zona geográfica de procedencia?</h4>
+             <h3>¿Qué características del texto son determinantes al saber la zona geográfica de procedencia?</h3>
              <p>Para este punto se propone extraer distintos features desde el texto y usarlos para entrenar el clasificador.
               Estos serán los emoticones, largo del texto y principalmente los Hashtag.
               Se cree que estos Hashtags se refieren principalmente a entidades y por lo tanto su información sea más representativa de la zona que otro tipo de palabras.</p>
 
-             <h4>¿Existe algún comportamiento asociado entre el momento de creación y la zona de donde procede?</h4>
+             <h3>¿Existe algún comportamiento asociado entre el momento de creación y la zona de donde procede?</h3>
              <p>Para esto habría que extraer como feature el horario de creación y entregarlo como input al clasificador.</p>
 
-             <h4>¿Los criterios usados para clasificar los twitts son atemporales?</h4>
+             <h3>¿Los criterios usados para clasificar los twitts son atemporales?</h3>
              <p>Para esto se propone dividir el dataset total en varios datasets.
               Se entrena un clasificador por año (con datos de ese mismo año) y se probará su desempeño en datos de otros años.
               Además se creará un clasificador que sea entrenado con datos de todos los años.
               Si los criterios fueran atemporales no debiese existir tanta diferencia en el desempeño entre los clasificador frente a un mismo conjunto de datos, sin importar su año de origen.</p>
 
-             <h4>¿Existen tópicos más frecuentes en una zona que en otra?</h4>
+             <h3>¿Existen tópicos más frecuentes en una zona que en otra?</h3>
              <p>En esta iteración del proyecto se efectuó un análisis sobre la distribución de los Hashtags, ya que se considera una buena aproximación al tópico que está siendo tocado en el tweet.
               Para la siguiente iteración se propone correr un reconocedor de entidades sobre los textos, esto significa un trabajo extra en cuanto al manejo de herramientas poderosas de NLP.
               Se espera que dado las diferentes ciudades, climas y culturas en chile, los tópicos hablados en cada región debieran ser diferentes.
               </p>
 
-             <h4>¿Existen palabras o modismos que se repliquen entre twitts de una misma zona geográfica?</h4>
+             <h3>¿Existen palabras o modismos que se repliquen entre twitts de una misma zona geográfica?</h3>
              <p>La idea tras esta pregunta es parecida a la de la pregunta anterior.
               Se propone investigar a fondo la distribución de las palabras en cada región.
               Luego eliminar las palabras comunes entre las diferentes clases, para finalmente presentarlas en un formato visual que sea claro y concluyente.</p>

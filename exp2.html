@@ -39,9 +39,9 @@
     <div class="topnav">
       <a href="index.html">Introducción</a>
       <a href="exploracion.html">Exploración de datos</a>
-      <a href="preguntas.html">Preguntas y problemas</a>
-      <a href="propuesta.html">Propuesta experimental</a>
-      <a href="exp1.html">Experimento 1</a>
+      <a href="propuesta.html">Preguntas y Propuesta</a>
+      <a href="exp1.html">Experimento 1 [hito2]</a>
+      <a href="exp1hito3.html">Experimento 1 [hito3]</a>
       <a class="active" href="exp2.html">Experimento 2</a>
       <a href="exp3.html">Experimento 3</a>
       <a href="exp4.html">Experimento 4</a>
@@ -65,6 +65,1043 @@
                   >&#182;</a
                 >
               </h1>
+            </div>
+          </div>
+        </div>
+
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h1 id="Imports">
+                Imports<a class="anchor-link" href="#Imports">&#182;</a>
+              </h1>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[1]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">path</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">calendar</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">gensim.models</span> <span class="kn">import</span> <span class="n">Word2Vec</span><span class="p">,</span> <span class="n">KeyedVectors</span>
+<span class="kn">import</span> <span class="nn">spacy</span>
+<span class="kn">import</span> <span class="nn">nltk</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[2]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;punkt&#39;</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt output_prompt">Out[2]:</div>
+
+                <div class="output_text output_subarea output_execute_result">
+                  <pre>True</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[3]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;stopwords&#39;</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt output_prompt">Out[3]:</div>
+
+                <div class="output_text output_subarea output_execute_result">
+                  <pre>True</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[4]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span>  
+<span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">FeatureUnion</span>
+<span class="kn">from</span> <span class="nn">sklearn.naive_bayes</span> <span class="kn">import</span> <span class="n">MultinomialNB</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">confusion_matrix</span><span class="p">,</span> <span class="n">f1_score</span><span class="p">,</span> <span class="n">classification_report</span>
+<span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">TfidfVectorizer</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">TransformerMixin</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[5]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="kn">from</span> <span class="nn">nltk.stem</span> <span class="kn">import</span> <span class="n">SnowballStemmer</span>
+<span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="kn">import</span> <span class="n">stopwords</span>
+
+<span class="kn">from</span> <span class="nn">spacy.lang.es.stop_words</span> <span class="kn">import</span> <span class="n">STOP_WORDS</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h1 id="Carga-de-datos">
+                Carga de datos<a class="anchor-link" href="#Carga-de-datos"
+                  >&#182;</a
+                >
+              </h1>
+              <p>
+                Dado que los datos se encontraban en diferentes archivos .csv,
+                se cargaron todos juntos en un mismo dataframe con el siguiente
+                código:
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[6]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;tweets_chile_geolocalizados2.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;idTweet&#39;</span><span class="p">,</span> <span class="s1">&#39;idUser&#39;</span><span class="p">,</span><span class="s1">&#39;created_at&#39;</span><span class="p">,</span><span class="s1">&#39;tweet&#39;</span><span class="p">,</span><span class="s1">&#39;latitud&#39;</span><span class="p">,</span><span class="s1">&#39;longitude&#39;</span><span class="p">,</span><span class="s1">&#39;class&#39;</span><span class="p">])</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <p>Obteniendo el siguiente resultado:</p>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[7]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="c1"># Se despliegan los datos concatenados en un solo dataframe</span>
+<span class="n">data</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt output_prompt">Out[7]:</div>
+
+                <div
+                  class="
+                    output_html
+                    rendered_html
+                    output_subarea output_execute_result
+                  "
+                >
+                  <div>
+                    <style scoped>
+                      .dataframe tbody tr th:only-of-type {
+                        vertical-align: middle;
+                      }
+
+                      .dataframe tbody tr th {
+                        vertical-align: top;
+                      }
+
+                      .dataframe thead th {
+                        text-align: right;
+                      }
+                    </style>
+                    <table border="1" class="dataframe">
+                      <thead>
+                        <tr style="text-align: right">
+                          <th></th>
+                          <th>idTweet</th>
+                          <th>idUser</th>
+                          <th>created_at</th>
+                          <th>tweet</th>
+                          <th>latitud</th>
+                          <th>longitude</th>
+                          <th>class</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th>0</th>
+                          <td>351490338654916608</td>
+                          <td>73787280</td>
+                          <td>2013-07-01 00:00:01</td>
+                          <td>
+                            “@naraback: Si bachelet fuera flaca, con qué l...
+                          </td>
+                          <td>-33.2615</td>
+                          <td>-70.6297</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>1</th>
+                          <td>351490339107901442</td>
+                          <td>325370754</td>
+                          <td>2013-07-01 00:00:01</td>
+                          <td>
+                            Si gana Longueira, la mínima posibilidad de ga...
+                          </td>
+                          <td>-32.9544</td>
+                          <td>-71.5317</td>
+                          <td>centro</td>
+                        </tr>
+                        <tr>
+                          <th>2</th>
+                          <td>351490342996033536</td>
+                          <td>96595015</td>
+                          <td>2013-07-01 00:00:02</td>
+                          <td>BRASIL CAMPEÓN MUNDIAL !!!! Gana a España 3-0</td>
+                          <td>-33.4395</td>
+                          <td>-70.6026</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>3</th>
+                          <td>351490358078742532</td>
+                          <td>172096924</td>
+                          <td>2013-07-01 00:00:06</td>
+                          <td>
+                            Denuevo la Bachelet... porque lo chilenos no a...
+                          </td>
+                          <td>-33.4133</td>
+                          <td>-70.5777</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>4</th>
+                          <td>351490399686230016</td>
+                          <td>115070990</td>
+                          <td>2013-07-01 00:00:16</td>
+                          <td>
+                            Esta que arde la cosa entre Allamand y Longuei...
+                          </td>
+                          <td>-33.4872</td>
+                          <td>-70.6531</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>...</th>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                        </tr>
+                        <tr>
+                          <th>9752490</th>
+                          <td>870066396109078528</td>
+                          <td>123745861</td>
+                          <td>2017-05-31 23:56:08</td>
+                          <td>
+                            Mi doctor y su mala idea de tener su consulta ...
+                          </td>
+                          <td>-33.4093</td>
+                          <td>-70.5732</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>9752491</th>
+                          <td>870066468024725505</td>
+                          <td>119277399</td>
+                          <td>2017-05-31 23:56:25</td>
+                          <td>
+                            Once romántica solitaria.. llenándome de energ...
+                          </td>
+                          <td>-33.4374</td>
+                          <td>-70.6334</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>9752492</th>
+                          <td>870066525520224256</td>
+                          <td>126125055</td>
+                          <td>2017-05-31 23:56:39</td>
+                          <td>
+                            Un hermoso tejido que me hizo mi madre para mi...
+                          </td>
+                          <td>-33.6081</td>
+                          <td>-70.6952</td>
+                          <td>RM</td>
+                        </tr>
+                        <tr>
+                          <th>9752493</th>
+                          <td>870066808547454976</td>
+                          <td>68747705</td>
+                          <td>2017-05-31 23:57:46</td>
+                          <td>
+                            Holis!!! kattta_monroy 🙈🙊 #quemaneradereirnos ...
+                          </td>
+                          <td>-38.4167</td>
+                          <td>-72.3833</td>
+                          <td>sur</td>
+                        </tr>
+                        <tr>
+                          <th>9752494</th>
+                          <td>870067310605869056</td>
+                          <td>372267677</td>
+                          <td>2017-05-31 23:59:46</td>
+                          <td>
+                            Después de un largo día de prensa en Stgo junt...
+                          </td>
+                          <td>-33.4296</td>
+                          <td>-70.6210</td>
+                          <td>RM</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <p>9752495 rows × 7 columns</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <p>
+                Podemos notar con el siguiente comando que las fechas del
+                dataframe son interpretadas como 'object' dificultando una
+                posible exploración posterior.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[8]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="c1"># Tipos de los datos</span>
+<span class="n">data</span><span class="o">.</span><span class="n">dtypes</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt output_prompt">Out[8]:</div>
+
+                <div class="output_text output_subarea output_execute_result">
+                  <pre>
+idTweet         int64
+idUser          int64
+created_at     object
+tweet          object
+latitud       float64
+longitude     float64
+class          object
+dtype: object</pre
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h1 id="Preprocesamiento-de-datos">
+                Preprocesamiento de datos<a
+                  class="anchor-link"
+                  href="#Preprocesamiento-de-datos"
+                  >&#182;</a
+                >
+              </h1>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h2 id="Correcci&#243;n-fechas">
+                Correcci&#243;n fechas<a
+                  class="anchor-link"
+                  href="#Correcci&#243;n-fechas"
+                  >&#182;</a
+                >
+              </h2>
+              <p>
+                Para dar solución al problema mencionado en el apartado
+                anterior, se descompuso el atributo 'created_at' por los
+                atributos 'year', 'hour' y 'weekday'.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[9]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="c1"># Parseo de las fechas, las que estaban en formato de String y se pasaron a formate datetime.datetime (yy-mm-dd hh:mm:ss).</span>
+
+<span class="c1"># Es una operación optimizable.</span>
+
+<span class="n">fechas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;created_at&#39;</span><span class="p">])</span>
+<span class="n">fechas_transformadas</span> <span class="o">=</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fechas</span><span class="p">]</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">created_at</span> <span class="o">=</span> <span class="n">fechas_transformadas</span><span class="p">)</span>
+<span class="c1"># Se aplica un mapeo al arreglo obtenido de la columna &#39;created_at&#39; en la celda anterior para obtener 3 arreglos:</span>
+<span class="c1"># los años, las horas y los dias de la semana correspondientes a cada fecha del arreglo.</span>
+<span class="n">años</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">year</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fechas_transformadas</span><span class="p">]</span>
+<span class="n">hora</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">hour</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fechas_transformadas</span><span class="p">]</span>
+<span class="n">dia_semana</span> <span class="o">=</span> <span class="p">[</span><span class="n">calendar</span><span class="o">.</span><span class="n">day_name</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">weekday</span><span class="p">()]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fechas_transformadas</span><span class="p">]</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <p>
+                Luego se procede a implementar una función que permita incluir
+                una columna que indique la zona horaria UTC correspondiente a
+                cada fecha en cada fila del dataset. Se sabe que en Chile
+                ocurren dos cambios de hora cada año, alternando entre zonas
+                horarias UTC -03:00 y -04:00, por lo que si se quiere pasar las
+                horas registradas en el dataset (en UTC 00:00) es necesario
+                conocer las fechas de los cambios de hora y agregar esa
+                informacion al dataset.
+              </p>
+              <p>
+                Es por esto que la función itera por cada uno de los periodos
+                entre cada cambio de hora ocurrido entre 2013 y 2017, definiendo
+                todas las fechas entre cada intervalo con el UTC respectivo.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[10]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="k">def</span> <span class="nf">agregar_utc_chile</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+  <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">UTC</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+  <span class="n">cambios_hora</span> <span class="o">=</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2010</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2013</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2013</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2014</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2014</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> 
+                  <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2016</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2016</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2017</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2017</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2018</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)]</span>
+  <span class="n">utc</span> <span class="o">=</span> <span class="mi">3</span>
+
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cambios_hora</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">inferior</span> <span class="o">=</span> <span class="n">cambios_hora</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">superior</span> <span class="o">=</span> <span class="n">cambios_hora</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;created_at&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">superior</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;created_at&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">inferior</span><span class="p">),</span> <span class="s1">&#39;UTC&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">utc</span>
+
+    <span class="k">if</span> <span class="n">utc</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+      <span class="n">utc</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">utc</span> <span class="o">=</span> <span class="mi">3</span>
+  
+  <span class="k">return</span> <span class="n">df</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <p>
+                Finalmente se desocupa el espacio del ambiente eliminando las
+                variables que no se van a usar más, y se agregan las nuevas
+                columnas <em>year</em>, <em>hour</em>, <em>weekday</em> y -UTC
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[11]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="c1"># Se borran del ambiente ya que no se van a necesitar de nuevo</span>
+<span class="k">del</span><span class="p">(</span><span class="n">fechas_transformadas</span><span class="p">)</span>
+<span class="k">del</span><span class="p">(</span><span class="n">fechas</span><span class="p">)</span>
+
+<span class="c1"># Se crean nuevos atributos en el dataset inicial para incluir como columnas a los arreglos obtenidos de la columna </span>
+<span class="c1"># &#39;created_at&#39;</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">year</span> <span class="o">=</span> <span class="n">años</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">hour</span> <span class="o">=</span> <span class="n">hora</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">weekday</span> <span class="o">=</span> <span class="n">dia_semana</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">agregar_utc_chile</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="c1"># Se borran del ambiente ya que no se van a necesitar de nuevo</span>
+<span class="k">del</span><span class="p">(</span><span class="n">años</span><span class="p">)</span>
+<span class="k">del</span><span class="p">(</span><span class="n">hora</span><span class="p">)</span>
+<span class="k">del</span><span class="p">(</span><span class="n">dia_semana</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h2 id="Largo-de-los-tweets">
+                Largo de los tweets<a
+                  class="anchor-link"
+                  href="#Largo-de-los-tweets"
+                  >&#182;</a
+                >
+              </h2>
+              <p>
+                Un dato que puede aportar a una exploración futura es el largo
+                de cada tweet, el cual se obtuvo de la siguiente forma.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[12]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="c1"># Se aplica un mapeo sobre la columna &#39;tweet&#39; para obtener el largo de cada tweet</span>
+<span class="n">tweets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;tweet&#39;</span><span class="p">])</span>
+<span class="n">largo_mensajes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tw</span><span class="p">))</span> <span class="k">for</span> <span class="n">tw</span> <span class="ow">in</span> <span class="n">tweets</span><span class="p">]</span>
+
+<span class="c1"># Se añade el largo de cada tweet como un atributo del dataset</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">largo_tweet</span> <span class="o">=</span> <span class="n">largo_mensajes</span><span class="p">)</span>
+
+<span class="c1"># Se borran del ambiente ya que no se van a necesitar de nuevo</span>
+<span class="k">del</span><span class="p">(</span><span class="n">largo_mensajes</span><span class="p">)</span>
+<span class="k">del</span><span class="p">(</span><span class="n">tweets</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[13]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="o">!</span>spacy download es_core_news_sm
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[14]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="o">!</span>pip install emoji
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt"></div>
+
+                <div
+                  class="output_subarea output_stream output_stdout output_text"
+                >
+                  <pre>
+Requirement already satisfied: emoji in c:\users\icuel\anaconda3\lib\site-packages (1.4.1)
+</pre
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[15]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;es_core_news_sm&quot;</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;ner&#39;</span><span class="p">,</span> <span class="s1">&#39;parser&#39;</span><span class="p">,</span> <span class="s1">&#39;tagger&#39;</span><span class="p">])</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h3
+                id="Subsampling-para-que-est&#233;-la-misma-cantidad-de-elementos-por-clase"
+              >
+                Subsampling para que est&#233; la misma cantidad de elementos
+                por clase<a
+                  class="anchor-link"
+                  href="#Subsampling-para-que-est&#233;-la-misma-cantidad-de-elementos-por-clase"
+                  >&#182;</a
+                >
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[16]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">NUM_SAMPLES</span> <span class="o">=</span> <span class="mi">845617</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">NUM_SAMPLES</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span>
+        <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[17]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="k">del</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[18]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">tweets_zona</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[[</span><span class="s1">&#39;idTweet&#39;</span><span class="p">,</span> <span class="s1">&#39;class&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;class&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="n">tweets_zona</span> <span class="o">=</span> <span class="n">tweets_zona</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;idTweet&#39;</span><span class="p">:</span> <span class="s1">&#39;Frecuencia&#39;</span><span class="p">})</span>
+<span class="n">tweets_zona</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt output_prompt">Out[18]:</div>
+
+                <div
+                  class="
+                    output_html
+                    rendered_html
+                    output_subarea output_execute_result
+                  "
+                >
+                  <div>
+                    <style scoped>
+                      .dataframe tbody tr th:only-of-type {
+                        vertical-align: middle;
+                      }
+
+                      .dataframe tbody tr th {
+                        vertical-align: top;
+                      }
+
+                      .dataframe thead th {
+                        text-align: right;
+                      }
+                    </style>
+                    <table border="1" class="dataframe">
+                      <thead>
+                        <tr style="text-align: right">
+                          <th></th>
+                          <th>Frecuencia</th>
+                        </tr>
+                        <tr>
+                          <th>class</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th>RM</th>
+                          <td>845617</td>
+                        </tr>
+                        <tr>
+                          <th>centro</th>
+                          <td>845617</td>
+                        </tr>
+                        <tr>
+                          <th>norte</th>
+                          <td>845617</td>
+                        </tr>
+                        <tr>
+                          <th>sur</th>
+                          <td>845617</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h3 id="Escoger-conjunto-de-Train-y-Testeo">
+                Escoger conjunto de Train y Testeo<a
+                  class="anchor-link"
+                  href="#Escoger-conjunto-de-Train-y-Testeo"
+                  >&#182;</a
+                >
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[19]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">tweet</span><span class="p">,</span>
+                                                    <span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">],</span>
+                                                    <span class="n">test_size</span><span class="o">=</span><span class="mf">0.33</span><span class="p">,</span>
+                                                    <span class="n">random_state</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h3 id="Bag-of-words,-pero-con-diferentes-tokenizadores">
+                Bag of words, pero con diferentes tokenizadores<a
+                  class="anchor-link"
+                  href="#Bag-of-words,-pero-con-diferentes-tokenizadores"
+                  >&#182;</a
+                >
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[20]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="c1"># Solo tokenizar el doc usando spacy.</span>
+<span class="k">def</span> <span class="nf">tokenizer</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">orth_</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nlp</span><span class="p">(</span><span class="n">doc</span><span class="p">)]</span>
+
+
+<span class="c1"># Tokenizar y remover las stopwords del doc</span>
+<span class="k">def</span> <span class="nf">tokenizer_with_stopwords</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">orth_</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nlp</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">orth_</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">STOP_WORDS</span><span class="p">]</span>
+
+
+<span class="c1"># Tokenizar y lematizar.</span>
+<span class="k">def</span> <span class="nf">tokenizer_with_lemmatization</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">lemma_</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nlp</span><span class="p">(</span><span class="n">doc</span><span class="p">)]</span>
+
+<span class="c1"># Tokenizar y hacer stemming.</span>
+<span class="k">def</span> <span class="nf">tokenizer_with_stemming</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="n">stemmer</span> <span class="o">=</span> <span class="n">SnowballStemmer</span><span class="p">(</span><span class="s1">&#39;spanish&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">stemmer</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">word</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">orth_</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nlp</span><span class="p">(</span><span class="n">doc</span><span class="p">)]]</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[21]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="c1">#https://github.com/dccuchile/CC6205/blob/master/tutorials/Auxiliar_1.ipynb link del tutorial del cual se extrae el código </span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[22]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="k">class</span> <span class="nc">EmojiCountTransformer</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">TransformerMixin</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">count_happy_emojis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tweet</span><span class="p">):</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">happy_emojis</span> <span class="o">=</span> <span class="s2">&quot;😀😃😄😁😆😅🤣😂🙂😊😉🤩☺😋😌🥳😎😺😸😹🙉&quot;</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">tweet</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">happy_emojis</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">count</span>
+
+    <span class="k">def</span> <span class="nf">count_sad_emojis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tweet</span><span class="p">):</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">sad_emojis</span> <span class="o">=</span> <span class="s2">&quot;😔😪😷🤕🤢😟🙁☹🥺😢😭😞😿&quot;</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">tweet</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">sad_emojis</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">count</span>
+
+    <span class="k">def</span> <span class="nf">count_fear_emojis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tweet</span><span class="p">):</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">fear_emojis</span> <span class="o">=</span> <span class="s2">&quot;😐😶😟😦😧😰😥😱😩😫🙀&quot;</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">tweet</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">fear_emojis</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">count</span>
+
+    <span class="k">def</span> <span class="nf">count_anger_emojis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tweet</span><span class="p">):</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">anger_emojis</span> <span class="o">=</span> <span class="s2">&quot;🤔😑😒😡😠🤬👿😾&quot;</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">tweet</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">anger_emojis</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">count</span>
+    
+    <span class="k">def</span> <span class="nf">get_relevant_emojis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tweet</span><span class="p">):</span>
+        <span class="n">num_happy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_happy_emojis</span><span class="p">(</span><span class="n">tweet</span><span class="p">)</span>
+        <span class="n">num_sad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_sad_emojis</span><span class="p">(</span><span class="n">tweet</span><span class="p">)</span>
+        <span class="n">num_fear</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_fear_emojis</span><span class="p">(</span><span class="n">tweet</span><span class="p">)</span>
+        <span class="n">num_anger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_anger_emojis</span><span class="p">(</span><span class="n">tweet</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">num_happy</span><span class="p">,</span> <span class="n">num_sad</span><span class="p">,</span> <span class="n">num_anger</span><span class="p">,</span> <span class="n">num_anger</span><span class="p">]</span>
+    
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">emojis</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">tweet</span> <span class="ow">in</span> <span class="n">X</span><span class="p">:</span>
+            <span class="n">emojis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_relevant_emojis</span><span class="p">(</span><span class="n">tweet</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">emojis</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[23]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="c1"># seleccionamos el tokenizador a usar:</span>
+<span class="n">TOKENIZER_OTHER</span> <span class="o">=</span> <span class="n">tokenizer_with_stopwords</span>
+
+<span class="c1"># Definimos el vectorizador para convertir el texto a BoW:</span>
+<span class="n">vectorizer_OTHER</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">analyzer</span><span class="o">=</span><span class="s1">&#39;word&#39;</span><span class="p">,</span>
+                              <span class="n">tokenizer</span><span class="o">=</span><span class="n">TOKENIZER_OTHER</span><span class="p">,</span>
+                              <span class="n">ngram_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="c1"># Definimos el clasificador que usaremos.</span>
+<span class="n">clf_OTHER</span> <span class="o">=</span> <span class="n">MultinomialNB</span><span class="p">()</span>   
+
+<span class="c1"># Creamos el pipeline</span>
+<span class="c1">#text_clf_stop = Pipeline([(&#39;vect&#39;, vectorizer_stop), (&#39;clf&#39;, clf_stop)])</span>
+<span class="n">text_clf_OTHER</span>  <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([(</span><span class="s1">&#39;features&#39;</span><span class="p">,</span>
+                      <span class="n">FeatureUnion</span><span class="p">([(</span><span class="s1">&#39;vect&#39;</span><span class="p">,</span> <span class="n">vectorizer_OTHER</span><span class="p">),</span>
+                                    <span class="p">(</span><span class="s1">&#39;emoji_count&#39;</span><span class="p">,</span> <span class="n">EmojiCountTransformer</span><span class="p">())</span>
+                                    <span class="p">])),</span> <span class="p">(</span><span class="s1">&#39;clf&#39;</span><span class="p">,</span> <span class="n">clf_OTHER</span><span class="p">)])</span>  
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[24]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="n">text_clf_OTHER</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="n">y_pred_OTHER</span> <span class="o">=</span> <span class="n">text_clf_OTHER</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell border-box-sizing code_cell rendered">
+          <div class="input">
+            <div class="prompt input_prompt">In&nbsp;[25]:</div>
+            <div class="inner_cell">
+              <div class="input_area">
+                <div class="highlight hl-ipython3">
+                  <pre><span></span><span class="c1"># usando la matriz de confusión:</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_OTHER</span><span class="p">),</span>
+      <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">-------------------------------------------------------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="c1"># usando el classification report:</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">classification_report</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_OTHER</span><span class="p">))</span>
+</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="output_wrapper">
+            <div class="output">
+              <div class="output_area">
+                <div class="prompt"></div>
+
+                <div
+                  class="output_subarea output_stream output_stdout output_text"
+                >
+                  <pre>
+[[153515  47603  54981  22775]
+  [ 45114 152584  57244  24525]
+  [ 36093  41219 182973  18027]
+  [ 34934  41024  47345 156259]] 
+
+-------------------------------------------------------
+
+              precision    recall  f1-score   support
+
+          RM       0.57      0.55      0.56    278874
+      centro       0.54      0.55      0.54    279467
+        norte       0.53      0.66      0.59    278312
+          sur       0.71      0.56      0.62    279562
+
+    accuracy                           0.58   1116215
+    macro avg       0.59      0.58      0.58   1116215
+weighted avg       0.59      0.58      0.58   1116215
+
+</pre
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cell border-box-sizing text_cell rendered">
+          <div class="prompt input_prompt"></div>
+          <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+              <h2>Conclusión</h2>
+              <p>
+                Esta era una pregunta abierta con muchas formas de ser
+                abordarda.
+              </p>
+              <p>
+                Se fue investigando varias caracteristicas y entre las muchas
+                interesantes preferimos trabajar con los emoticones Se creo un
+                clasificador que cuenta la cantidad de emoticones por
+                categoría(alegria, tristesa, rabia etc) Y luego use ese vector
+                como feature para el clasificador. Los resultados son poco
+                concluyentes En general el desempeño no era afectado si se
+                entregaba este input o no.
+              </p>
+              <p>
+                Para un futuro se propone buscar emoticones que representen el
+                clima mas que un sentimiento. Dada las diferencias geograficas
+                del pais es posible que este enfoque pueda afectar mas
+              </p>
             </div>
           </div>
         </div>
